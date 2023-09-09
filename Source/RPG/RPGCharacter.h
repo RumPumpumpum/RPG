@@ -41,17 +41,14 @@ protected:
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> JumpAction;
+	TObjectPtr<class UInputAction> JumpAction;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> MoveAction;
+	TObjectPtr<class UInputAction> MoveAction;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> LookAction;
+	TObjectPtr<class UInputAction> LookAction;
 
-	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-
-
-
+	void Move(const FInputActionValue& Value);
 };
