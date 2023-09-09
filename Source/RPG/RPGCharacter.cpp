@@ -3,6 +3,7 @@
 
 #include "RPGCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -13,6 +14,10 @@ ARPGCharacter::ARPGCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// 캐릭터 무브먼트
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
 	// 카메라 (스프링암이 물체와 충돌하면 캐릭터쪽으로 당겨짐)
 	bUseControllerRotationPitch = false;
@@ -56,6 +61,7 @@ void ARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Input Mapping Context 추가
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
@@ -100,22 +106,22 @@ void ARPGCharacter::Look(const FInputActionValue& Value)
 	// 마우스의 좌우,상하 입력을 추가
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
-	UE_LOG(LogTemp, Log, TEXT("Looking"));
-
 }
 
 void ARPGCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	// 캐릭터가 좌우로만 회전
 	const FRotator Rotation = Controller->GetControlRotation();	
 	const FRotator YawRotation(0, Rotation.Yaw, 0);
 
+	// 벡터 계산
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
+	// MovementVector 값에 따라 이동
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
-	UE_LOG(LogTemp, Log, TEXT("Moving"));
 }
 
