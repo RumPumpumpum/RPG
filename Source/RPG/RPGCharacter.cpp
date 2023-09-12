@@ -18,6 +18,7 @@ ARPGCharacter::ARPGCharacter()
 	// 캐릭터 무브먼트
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	GetCharacterMovement()->MaxAcceleration = 1500.f;
 
 	// 카메라 (스프링암이 물체와 충돌하면 캐릭터쪽으로 당겨짐)
 	bUseControllerRotationPitch = false;

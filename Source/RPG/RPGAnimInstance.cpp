@@ -5,6 +5,19 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+void URPGAnimInstance::AnimNotify_Land()
+{
+	Owner->GetCharacterMovement()->MaxAcceleration = 0.f;
+	Owner->JumpMaxCount = 0;
+
+}
+
+void URPGAnimInstance::AnimNotify_LandFinish()
+{
+	Owner->GetCharacterMovement()->MaxAcceleration = 1500.f;
+	Owner->JumpMaxCount = 1;
+}
+
 void URPGAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

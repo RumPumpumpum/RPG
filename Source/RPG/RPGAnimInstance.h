@@ -15,6 +15,10 @@ class RPG_API URPGAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	void AnimNotify_Land();
+	UFUNCTION()
+	void AnimNotify_LandFinish();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
