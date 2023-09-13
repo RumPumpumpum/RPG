@@ -15,11 +15,13 @@ class RPG_API URPGAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
+	URPGAnimInstance();
 	UFUNCTION()
 	void AnimNotify_Land();
 	UFUNCTION()
 	void AnimNotify_LandFinish();
 
+// 캐릭터 무브먼트 설정
 protected:
 	virtual void NativeInitializeAnimation() override;
 
@@ -32,7 +34,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 	TObjectPtr<class UCharacterMovementComponent> Movement;
 
-	// 캐릭터 정보
+// 캐릭터 정보
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector Velocity;
 
@@ -47,6 +49,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsJumping : 1;
+
+// 공격 액션
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> AttackMontage;
+
+public:
+	void PlayAttackMontage();
 
 private:
 };

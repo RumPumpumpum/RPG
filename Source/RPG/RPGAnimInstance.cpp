@@ -4,18 +4,25 @@
 #include "RPGAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/AnimMontage.h"
+
+URPGAnimInstance::URPGAnimInstance()
+{
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/AM_Attack.AM_Attack'"));
+	if (AttackMontageRef.Succeeded())
+	{
+		AttackMontage = AttackMontageRef.Object;
+	}
+}
 
 void URPGAnimInstance::AnimNotify_Land()
 {
-	Owner->GetCharacterMovement()->MaxAcceleration = 0.f;
-	Owner->JumpMaxCount = 0;
-
+	Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 }
 
 void URPGAnimInstance::AnimNotify_LandFinish()
 {
-	Owner->GetCharacterMovement()->MaxAcceleration = 1500.f;
-	Owner->JumpMaxCount = 1;
+	Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void URPGAnimInstance::NativeInitializeAnimation()
@@ -39,5 +46,14 @@ void URPGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Speed = Velocity.Size2D();
 		bIsIdle = Speed <= 0.f;
 		bIsInAir = Movement->IsFalling();
+	}
+}
+
+void URPGAnimInstance::PlayAttackMontage()
+{
+	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
+	if (!Montage_IsPlaying(AttackMontage))
+	{
+		AnimInstance->Montage_Play(AttackMontage);
 	}
 }

@@ -2,12 +2,14 @@
 
 
 #include "RPGCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "RPGAnimInstance.h"
 
 // Sets default values
 ARPGCharacter::ARPGCharacter()
@@ -15,10 +17,34 @@ ARPGCharacter::ARPGCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// 캡슐
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
+
+	// 캐릭터 메시
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonGreystone/Characters/Heroes/Greystone/Meshes/Greystone.Greystone'"));
+	if (CharacterMeshRef.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Game/Character/ABP_RPGCharacter.ABP_RPGCharacter_C"));
+	if (AnimInstanceRef.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(AnimInstanceRef.Class);
+	}
+
 	// 캐릭터 무브먼트
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	GetCharacterMovement()->JumpZVelocity = 500.f;
+	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MaxAcceleration = 1500.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+
 
 	// 카메라 (스프링암이 물체와 충돌하면 캐릭터쪽으로 당겨짐)
 	bUseControllerRotationPitch = false;
@@ -44,7 +70,7 @@ ARPGCharacter::ARPGCharacter()
 	(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Jump.IA_Jump'"));
 	if (IA_JUMP.Succeeded())	
 		JumpAction = IA_JUMP.Object;
-
+	
 	static ConstructorHelpers::FObjectFinder<UInputAction>IA_LOOK
 	(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Look.IA_Look'"));
 	if (IA_LOOK.Succeeded())
@@ -55,6 +81,11 @@ ARPGCharacter::ARPGCharacter()
 	if (IA_MOVE.Succeeded())
 		MoveAction = IA_MOVE.Object;
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_ATTACK
+	(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Attack.IA_Attack'"));
+	if (IA_ATTACK.Succeeded())
+		AttackAction = IA_ATTACK.Object;
+		
 }
 
 // Called when the game starts or when spawned
@@ -97,6 +128,9 @@ void ARPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		
 		// Move
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Move);
+
+		// Attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Attack);
 	}
 }
 
@@ -125,4 +159,14 @@ void ARPGCharacter::Move(const FInputActionValue& Value)
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	AddMovementInput(RightDirection, MovementVector.X);
 }
+
+void ARPGCharacter::Attack()
+{
+	TObjectPtr<class URPGAnimInstance> AnimInstance = Cast<URPGAnimInstance>(GetMesh()->GetAnimInstance());
+	if (AnimInstance)
+	{
+		AnimInstance->PlayAttackMontage();
+	}
+}
+
 
