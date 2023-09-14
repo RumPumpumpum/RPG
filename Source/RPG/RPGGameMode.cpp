@@ -6,7 +6,7 @@
 
 ARPGGameMode::ARPGGameMode()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClass(TEXT("/Script/Engine.Blueprint'/Game/Character/BP_RPGCharacter.BP_RPGCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClass(TEXT("/Game/Character/BP_RPGCharacter.BP_RPGCharacter_C"));
 	if (PlayerPawnClass.Class)
 	{
 		DefaultPawnClass = PlayerPawnClass.Class;

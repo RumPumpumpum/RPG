@@ -30,10 +30,10 @@ public:
 // 카메라
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* SpringArm;
+	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+	TObjectPtr<class UCameraComponent> FollowCamera;
 
 // 입력
 protected:
@@ -55,4 +55,25 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Attack();
+
+// 애님 인스턴스
+private:
+	UPROPERTY()
+	TObjectPtr<class URPGAnimInstance> AnimInstance;
+
+// 공격 관련
+public:
+	UFUNCTION()
+	void MontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+private:
+	// 캐릭터의 공격관련 상태
+	UPROPERTY(VisibleAnywhere, Category = State)
+	bool bIsAttacking;
+	UPROPERTY(VisibleAnywhere, Category = State)
+	bool bCanNextAttack;
+
+	// 연속공격을 위한 카운트
+	UPROPERTY(VisibleAnywhere, Category = State)
+	uint8 AttackCnt;
 };

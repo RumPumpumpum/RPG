@@ -38,7 +38,7 @@ ARPGCharacter::ARPGCharacter()
 
 	// 캐릭터 무브먼트
 	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
@@ -84,14 +84,21 @@ ARPGCharacter::ARPGCharacter()
 	static ConstructorHelpers::FObjectFinder<UInputAction>IA_ATTACK
 	(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Attack.IA_Attack'"));
 	if (IA_ATTACK.Succeeded())
-		AttackAction = IA_ATTACK.Object;
-		
+		AttackAction = IA_ATTACK.Object;	
+
+	// 공격 관련 캐릭터 상태 초기화
+	bIsAttacking = false;
+	bCanNextAttack = false;
+	AttackCnt = 0;
 }
 
 // Called when the game starts or when spawned
 void ARPGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 애님 인스턴스 초기화
+	AnimInstance = Cast<URPGAnimInstance>(GetMesh()->GetAnimInstance());
 
 	// Input Mapping Context 추가
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -103,6 +110,9 @@ void ARPGCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	// 몽타주 끝날 때 함수를 호출하는 델리게이트	
+	AnimInstance->OnMontageEnded.AddDynamic(this, &ARPGCharacter::MontageEnded);
 }
 
 // Called every frame
@@ -162,11 +172,56 @@ void ARPGCharacter::Move(const FInputActionValue& Value)
 
 void ARPGCharacter::Attack()
 {
-	TObjectPtr<class URPGAnimInstance> AnimInstance = Cast<URPGAnimInstance>(GetMesh()->GetAnimInstance());
+	// 공격 예외 처리
+	// 점프 중일때
+	if (GetCharacterMovement()->MovementMode == MOVE_Falling)
+	{
+		return;
+	}
+
+	// 이미 공격 중일때
+	if (bIsAttacking)
+	{
+		bCanNextAttack = true;
+		return;
+	}
+
 	if (AnimInstance)
 	{
 		AnimInstance->PlayAttackMontage();
+		AnimInstance->JumpToSectionAttackMontage(AttackCnt);
+	}
+
+	// 공격시 캐릭터의 상태정보
+	bIsAttacking = true;
+	AttackCnt++;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+}
+
+void ARPGCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 어택 몽타주 종료
+	if (Montage == AnimInstance->GetAttackMontage())
+	{
+		// 공격 종료시 캐릭터의 상태정보
+		bIsAttacking = false;
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+		// 다음 단계 공격여부 판별을 위한 조건문
+		// 공격 도중에 공격을 다시 시도하였고, 지금까지 3번 이하의 공격을 했다면 연속공격
+		if (bCanNextAttack && AttackCnt <= 2)
+		{
+			Attack();
+		}
+		// 연속 공격을 시도하지 않았거나 공격횟수가 3회를 초과하였을 경우, 공격 카운트를 초기화하고 몽타주 종료
+		else if (!bCanNextAttack || AttackCnt >= 3)
+		{
+			AttackCnt = 0;
+		}
+
+		bCanNextAttack = false;
 	}
 }
+
 
 

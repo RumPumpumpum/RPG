@@ -8,6 +8,7 @@
 
 URPGAnimInstance::URPGAnimInstance()
 {
+	// 공격 몽타주 로드
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/AM_Attack.AM_Attack'"));
 	if (AttackMontageRef.Succeeded())
 	{
@@ -51,9 +52,11 @@ void URPGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void URPGAnimInstance::PlayAttackMontage()
 {
-	UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
-	if (!Montage_IsPlaying(AttackMontage))
-	{
-		AnimInstance->Montage_Play(AttackMontage);
-	}
+	Montage_Play(AttackMontage);
+}
+
+void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)
+{
+	FName NextAttackSection = *FString::Printf(TEXT("Attack%d"), AttackCnt);
+	Montage_JumpToSection(NextAttackSection, AttackMontage);
 }

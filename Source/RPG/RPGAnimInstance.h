@@ -16,6 +16,8 @@ class RPG_API URPGAnimInstance : public UAnimInstance
 
 public:
 	URPGAnimInstance();
+
+public:
 	UFUNCTION()
 	void AnimNotify_Land();
 	UFUNCTION()
@@ -34,7 +36,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 	TObjectPtr<class UCharacterMovementComponent> Movement;
 
-// 캐릭터 정보
+	// 캐릭터 정보
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector Velocity;
 
@@ -56,7 +58,12 @@ protected:
 	TObjectPtr<class UAnimMontage> AttackMontage;
 
 public:
+	UFUNCTION()
 	void PlayAttackMontage();
+	UFUNCTION()
+	void JumpToSectionAttackMontage(uint8 AttackCnt);
+
+	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 
 private:
 };
