@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "RPGAnimationAttackInterface.h"
 #include "RPGCharacter.generated.h"
 
 UCLASS()
-class RPG_API ARPGCharacter : public ACharacter
+class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface
 {
 	GENERATED_BODY()
 
@@ -76,4 +77,8 @@ private:
 	// 연속공격을 위한 카운트
 	UPROPERTY(VisibleAnywhere, Category = State)
 	uint8 AttackCnt;
+
+// 공격 충돌 체크 인터페이스
+protected:
+	virtual void AttackHitCheck() override;
 };

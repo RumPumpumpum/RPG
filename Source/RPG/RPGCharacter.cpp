@@ -19,10 +19,12 @@ ARPGCharacter::ARPGCharacter()
 
 	// 캡슐
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("RPGCapsule"));
 
-	// 캐릭터 메시
+	// 캐릭터 메쉬
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonGreystone/Characters/Heroes/Greystone/Meshes/Greystone.Greystone'"));
 	if (CharacterMeshRef.Succeeded())
@@ -39,14 +41,14 @@ ARPGCharacter::ARPGCharacter()
 	// 캐릭터 무브먼트
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 500.f;
+	GetCharacterMovement()->JumpZVelocity = 500.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	GetCharacterMovement()->MaxAcceleration = 1500.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	GetCharacterMovement()->MaxAcceleration = 1500.0f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
 
 
-	// 카메라 (스프링암이 물체와 충돌하면 캐릭터쪽으로 당겨짐)
+	// 카메라
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -60,7 +62,7 @@ ARPGCharacter::ARPGCharacter()
 	FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	// 입력
+	// 입력 액션
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>DEFAULT_CONTEXT
 	(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Input/IMC_Default.IMC_Default'"));
 	if (DEFAULT_CONTEXT.Succeeded())
@@ -221,6 +223,43 @@ void ARPGCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 		bCanNextAttack = false;
 	}
+}
+
+void ARPGCharacter::AttackHitCheck()
+{
+	// 충돌검사 매개변수 설정
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+	FHitResult OutHitResult;
+
+	const float AttackRange = 40.0f;
+	const float AttackRadius = 50.0f;
+	const float  AttackDamage = 30.0f;
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+	// 충돌검사
+	bool HitDetected = GetWorld()->SweepSingleByChannel(
+		OutHitResult,
+		Start,
+		End,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params);
+	if (HitDetected)
+	{
+
+	}
+
+	// 충돌판정 그리기
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+#endif
 }
 
 
