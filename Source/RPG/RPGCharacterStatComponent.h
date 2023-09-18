@@ -26,13 +26,10 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Stat)
 	float MaxHp;
 
-	// Transient : 현재 HP 같은 경우 게임을 할 때 마다 새롭게 지정되기 때문에
-	// 디스크에 저장할 필요가 없을 수도 있음
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
 
 public:
-
 	void ApplyDamege(float InDamage);
 	void SetHp(float NewHp);
 

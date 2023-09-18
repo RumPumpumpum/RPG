@@ -18,8 +18,7 @@ void URPGHpBarWidget::NativeConstruct()
 	HpBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
 	ensure(HpBar);
 
-	// Owning 액터의 위젯 인터페이스
-	// 액터가 인터페이스를 구현하고 있는지 확인하고 구현하고 있다면
+	// 액터가 위젯 인터페이스를 구현하고 있는지 확인하고 구현하고 있다면
 	// 해당 인터페이스를 사용할 수 있도록 인터페이스 포인터로 반환 
 	IRPGWidgetInterface* WidgetInterface = Cast<IRPGWidgetInterface>(OwningActor);
 	if (WidgetInterface)

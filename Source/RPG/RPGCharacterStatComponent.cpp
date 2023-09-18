@@ -15,17 +15,14 @@ URPGCharacterStatComponent::URPGCharacterStatComponent()
 void URPGCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// ...
 	
 }
 
 void URPGCharacterStatComponent::ApplyDamege(float InDamage)
 {
-	const float ActualDamage = InDamage;
-	const float PrevHp = CurrentHp;
-
-	SetHp(PrevHp - ActualDamage);
+	SetHp(CurrentHp - InDamage);
 }
 
 void URPGCharacterStatComponent::SetHp(float NewHp)
@@ -37,7 +34,6 @@ void URPGCharacterStatComponent::SetHp(float NewHp)
 		OnHpZero.Broadcast();
 	}
 
-	// HP가 변경되었으니 나를 구독한 사람은 알아서 처리하도록!
 	OnHpChanged.Broadcast(CurrentHp);
 }
 
