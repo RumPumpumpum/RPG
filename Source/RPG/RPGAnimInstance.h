@@ -52,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsJumping : 1;
 
-// 공격 액션
+// 공격
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> AttackMontage;
@@ -63,7 +63,15 @@ public:
 	UFUNCTION()
 	void JumpToSectionAttackMontage(uint8 AttackCnt);
 
+public:
 	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 
-private:
+// 죽음
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+public:
+	UFUNCTION()
+	void PlayDeadMontage();
 };

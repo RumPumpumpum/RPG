@@ -9,10 +9,17 @@
 URPGAnimInstance::URPGAnimInstance()
 {
 	// °ø°Ý ¸ùÅ¸ÁÖ ·Îµå
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/AM_Attack.AM_Attack'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/Animations/AM_Attack.AM_Attack'"));
 	if (AttackMontageRef.Succeeded())
 	{
 		AttackMontage = AttackMontageRef.Object;
+	}
+
+	// »ç¸Á ¸ùÅ¸ÁÖ ·Îµå
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/Animations/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Succeeded())
+	{
+		DeadMontage = DeadMontageRef.Object;
 	}
 }
 
@@ -59,4 +66,10 @@ void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)
 {
 	FName NextAttackSection = *FString::Printf(TEXT("Attack%d"), AttackCnt);
 	Montage_JumpToSection(NextAttackSection, AttackMontage);
+}
+
+void URPGAnimInstance::PlayDeadMontage()
+{
+	StopAllMontages(0.f);
+	Montage_Play(DeadMontage);
 }

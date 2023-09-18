@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "RPGAnimationAttackInterface.h"
+#include "RPGWidgetInterface.h"
 #include "RPGCharacter.generated.h"
 
 UCLASS()
-class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface
+class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -78,7 +79,26 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = State)
 	uint8 AttackCnt;
 
-// 공격 충돌 체크 인터페이스
 protected:
+	// 공격 충돌 관련
 	virtual void AttackHitCheck() override;
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+// 죽음
+	void SetDead();
+
+// 스탯
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class URPGCharacterStatComponent> StatComp;
+
+// UI 
+protected:
+	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
+
+	//체력 위젯
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class URPGWidgetComponent> HpBarComp;
+
 };

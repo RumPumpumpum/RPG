@@ -10,6 +10,11 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "RPGAnimInstance.h"
+#include "Engine/DamageEvents.h"
+#include "RPGCharacterStatComponent.h"
+#include "RPGWidgetComponent.h"
+#include "RPGHpBarWidget.h"
+
 
 // Sets default values
 ARPGCharacter::ARPGCharacter()
@@ -46,7 +51,6 @@ ARPGCharacter::ARPGCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->MaxAcceleration = 1500.0f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.0f;
-
 
 	// 카메라
 	bUseControllerRotationPitch = false;
@@ -92,6 +96,23 @@ ARPGCharacter::ARPGCharacter()
 	bIsAttacking = false;
 	bCanNextAttack = false;
 	AttackCnt = 0;
+
+	// 스탯 컴포넌트 관련 초기화
+	StatComp = CreateDefaultSubobject<URPGCharacterStatComponent>(TEXT("Stat"));
+
+	// 위젯 컴포넌트 관련 초기화
+	HpBarComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
+
+	HpBarComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBarComp->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBarComp->SetupAttachment(GetMesh());
+		HpBarComp->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBarComp->SetDrawSize(FVector2D(150.0f, 15.0f));
+		HpBarComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -113,8 +134,11 @@ void ARPGCharacter::BeginPlay()
 		}
 	}
 
-	// 몽타주 끝날 때 함수를 호출하는 델리게이트	
+	// 몽타주가 끝날 때 함수를 호출하는 델리게이트	
 	AnimInstance->OnMontageEnded.AddDynamic(this, &ARPGCharacter::MontageEnded);
+
+	// 스텟의 OnHpZero 델리게이트를 구독
+	StatComp->OnHpZero.AddUObject(this, &ARPGCharacter::SetDead);
 }
 
 // Called every frame
@@ -188,13 +212,14 @@ void ARPGCharacter::Attack()
 		return;
 	}
 
+	// 몽타주 재생
 	if (AnimInstance)
 	{
 		AnimInstance->PlayAttackMontage();
 		AnimInstance->JumpToSectionAttackMontage(AttackCnt);
 	}
 
-	// 공격시 캐릭터의 상태정보
+	// 공격시 캐릭터의 상태 정보
 	bIsAttacking = true;
 	AttackCnt++;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
@@ -225,6 +250,38 @@ void ARPGCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	}
 }
 
+float ARPGCharacter::TakeDamage(
+	float DamageAmount,
+	FDamageEvent const& DamageEvent, 
+	AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	StatComp->ApplyDamege(DamageAmount);
+
+	return 0.0f;
+}
+
+void ARPGCharacter::SetDead()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	SetActorEnableCollision(false);
+	AnimInstance->PlayDeadMontage();
+}
+
+void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
+{
+	// HpBar 위젯
+	URPGHpBarWidget* HpBarWidget = Cast<URPGHpBarWidget>(InUserWidget);
+	if (HpBarWidget)
+	{
+		HpBarWidget->SetMaxHp(StatComp->GetMaxHp());
+		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp());
+		StatComp->OnHpChanged.AddUObject(HpBarWidget, &URPGHpBarWidget::UpdateHpBar);
+	}
+}
+
 void ARPGCharacter::AttackHitCheck()
 {
 	// 충돌검사 매개변수 설정
@@ -248,7 +305,8 @@ void ARPGCharacter::AttackHitCheck()
 		Params);
 	if (HitDetected)
 	{
-
+		FDamageEvent DamageEvent;
+		OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
 	}
 
 	// 충돌판정 그리기
