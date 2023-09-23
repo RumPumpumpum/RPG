@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "RPGWidgetInterface.h"
+#include "RPGEnemyAIInterface.h"
 #include "RPGEnemy.generated.h"
 
 UCLASS()
-class RPG_API ARPGEnemy : public ACharacter, public IRPGWidgetInterface
+class RPG_API ARPGEnemy : public ACharacter, public IRPGWidgetInterface, public IRPGEnemyAIInterface
 {
 	GENERATED_BODY()
 
@@ -51,5 +52,11 @@ protected:
 //Ã¼·Â À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarComp;
+
+// AI
+protected:
+	virtual float GetAIPatrolRadius() override;
+	virtual float GetAIDetectRange() override;
+	virtual float GetAIAttackRange() override;
 
 };

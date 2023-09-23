@@ -15,9 +15,9 @@ URPGCharacterStatComponent::URPGCharacterStatComponent()
 void URPGCharacterStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	// ...
-	
+
 }
 
 void URPGCharacterStatComponent::ApplyDamege(float InDamage)

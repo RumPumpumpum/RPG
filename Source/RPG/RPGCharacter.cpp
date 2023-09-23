@@ -59,14 +59,14 @@ ARPGCharacter::ARPGCharacter()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(RootComponent);
-	SpringArm->TargetArmLength = 1000.f;
-	SpringArm->bUsePawnControlRotation = true;
+	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->TargetArmLength = 1000.f;
+	SpringArmComp->bUsePawnControlRotation = true;
 
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
+	FollowCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
+	FollowCameraComp->bUsePawnControlRotation = false;
 
 	// 입력 액션
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>DEFAULT_CONTEXT
@@ -99,13 +99,15 @@ ARPGCharacter::ARPGCharacter()
 	bCanNextAttack = false;
 	AttackCnt = 0;
 
-	// 스탯 컴포넌트 관련 초기화
+	// 스탯 컴포넌트 초기화
 	StatComp = CreateDefaultSubobject<URPGCharacterStatComponent>(TEXT("Stat"));
 
-	// 위젯 컴포넌트 관련 초기화
+	// 위젯 컴포넌트 초기화
 	HpBarComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
 
+// 위젯 컴포넌트 설정
 	HpBarComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+	// 위젯 호출 및 초기화
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
@@ -139,7 +141,7 @@ void ARPGCharacter::BeginPlay()
 	// 몽타주가 끝날 때 함수를 호출하는 델리게이트	
 	AnimInstance->OnMontageEnded.AddDynamic(this, &ARPGCharacter::MontageEnded);
 
-	// 스텟의 OnHpZero 델리게이트를 구독
+	// 스텟 컴포넌트의 OnHpZero 델리게이트를 구독
 	StatComp->OnHpZero.AddUObject(this, &ARPGCharacter::SetDead);
 }
 
@@ -155,20 +157,20 @@ void ARPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComp = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		//Jump
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComp->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EnhancedInputComp->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Look
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Look);
+		EnhancedInputComp->BindAction(LookAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Look);
 		
 		// Move
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Move);
+		EnhancedInputComp->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Move);
 
 		// Attack
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Attack);
+		EnhancedInputComp->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Attack);
 	}
 }
 
@@ -277,7 +279,7 @@ void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
 	// HpBar 위젯
 	URPGHpBarWidget* HpBarWidget = Cast<URPGHpBarWidget>(InUserWidget);
 	if (HpBarWidget)
-	{
+	{	
 		HpBarWidget->SetMaxHp(StatComp->GetMaxHp());
 		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp());
 		StatComp->OnHpChanged.AddUObject(HpBarWidget, &URPGHpBarWidget::UpdateHpBar);
@@ -287,8 +289,8 @@ void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
 void ARPGCharacter::AttackHitCheck()
 {
 	// 충돌검사 매개변수 설정
+	TArray<FHitResult> OutHitResults;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
-	FHitResult OutHitResult;
 
 	const float AttackRange = 40.0f;
 	const float AttackRadius = 50.0f;
@@ -297,26 +299,30 @@ void ARPGCharacter::AttackHitCheck()
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 
 	// 충돌검사
-	bool HitDetected = GetWorld()->SweepSingleByChannel(
-		OutHitResult,
+	bool bHitDetected = GetWorld()->SweepMultiByChannel(
+		OutHitResults,
 		Start,
 		End,
 		FQuat::Identity,
 		ECollisionChannel::ECC_GameTraceChannel1,
 		FCollisionShape::MakeSphere(AttackRadius),
 		Params);
-	if (HitDetected)
+	if (bHitDetected)
 	{
-		FDamageEvent DamageEvent;
-		OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+		// 감지된 모든 Pawn에 대해서 검사를 수행
+		for (auto const& OutHitResult : OutHitResults)
+		{
+			FDamageEvent DamageEvent;
+			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+		}
 	}
 
-	// 충돌판정 그리기
+// !충돌판정 테스트!
 #if ENABLE_DRAW_DEBUG
 
 	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 	float CapsuleHalfHeight = AttackRange * 0.5f;
-	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+	FColor DrawColor = bHitDetected ? FColor::Green : FColor::Red;
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 #endif

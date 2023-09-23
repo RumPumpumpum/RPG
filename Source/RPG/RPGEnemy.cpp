@@ -3,11 +3,12 @@
 
 #include "RPGEnemy.h"
 #include "Components/CapsuleComponent.h"
-#include "RPGEnemyAnimInstance.h"
 #include "Engine/DamageEvents.h"
+#include "RPGEnemyAnimInstance.h"
 #include "RPGEnemyStatComponent.h"
 #include "RPGWidgetComponent.h"
 #include "RPGHpBarWidget.h"
+#include "RPGAIController.h"
 
 
 // Sets default values
@@ -19,7 +20,7 @@ ARPGEnemy::ARPGEnemy()
 	// Ä¸½¶
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("RPGCapsule"));
-
+	
 	// Ä³¸¯ÅÍ ¸Þ½¬
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
@@ -43,9 +44,9 @@ ARPGEnemy::ARPGEnemy()
 
 	// À§Á¬ ÄÄÆ÷³ÍÆ® °ü·Ã ÃÊ±âÈ­
 	HpBarComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
-
+	
 	HpBarComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_EnemyHpBar.WBP_EnemyHpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
 		HpBarComp->SetWidgetClass(HpBarWidgetRef.Class);
@@ -54,6 +55,10 @@ ARPGEnemy::ARPGEnemy()
 		HpBarComp->SetDrawSize(FVector2D(150.0f, 15.0f));
 		HpBarComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	// AI
+	AIControllerClass = ARPGAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 // Called when the game starts or when spawned
@@ -94,6 +99,12 @@ float ARPGEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 
 void ARPGEnemy::SetDead()
 {
+	ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
+	// AI Áß´Ü
+	if (AIController)
+	{
+		AIController->StopAI();
+	}
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
@@ -108,3 +119,19 @@ void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
 	}
 }
 
+float ARPGEnemy::GetAIPatrolRadius()
+{
+	return 800.0f;
+}
+
+float ARPGEnemy::GetAIDetectRange()
+{
+	return 400.0f;
+}
+
+float ARPGEnemy::GetAIAttackRange()
+{
+	return 0.0f;
+}
+
+	

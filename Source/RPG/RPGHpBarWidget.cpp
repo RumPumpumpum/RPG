@@ -14,7 +14,6 @@ void URPGHpBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// À§Á¬ ÄÄÆ÷³ÍÆ® °¡Á®¿È
 	HpBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PbHpBar")));
 	ensure(HpBar);
 
