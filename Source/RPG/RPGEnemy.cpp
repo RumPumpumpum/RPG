@@ -71,7 +71,9 @@ void ARPGEnemy::BeginPlay()
 
 	// 스텟의 OnHpZero 델리게이트를 구독
 	StatComp->OnHpZero.AddUObject(this, &ARPGEnemy::SetDead);
-	
+
+	// 몽타주가 끝날 때 함수를 호출하는 델리게이트	
+	AnimInstance->OnMontageEnded.AddDynamic(this, &ARPGEnemy::MontageEnded);
 }
 
 // Called every frame
@@ -105,6 +107,9 @@ void ARPGEnemy::SetDead()
 	{
 		AIController->StopAI();
 	}
+
+	AnimInstance->PlayDeadMontage();
+	SetActorEnableCollision(false);
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
@@ -121,17 +126,80 @@ void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
 
 float ARPGEnemy::GetAIPatrolRadius()
 {
-	return 800.0f;
+	return StatComp->GetPatrolRadius();
 }
 
-float ARPGEnemy::GetAIDetectRange()
+float ARPGEnemy::GetAIDetectRadius()
 {
-	return 400.0f;
+	return StatComp->GetDetectRadius();
 }
 
 float ARPGEnemy::GetAIAttackRange()
 {
-	return 0.0f;
+	return StatComp->GetAttackRadius();
 }
 
-	
+void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// 공격 몽타주 종료
+	if (Montage == AnimInstance->GetAttackMontage())
+	{
+		// 공격 종료시 상태정보
+		AnimInstance->SetIsAttacking(false);
+
+		// 델리게이트
+		AttackFinished.ExecuteIfBound();
+	}
+}
+
+void ARPGEnemy::SetAIAttackFinishedDelegate(const FAIAttackFinished& AIAttackFinished)
+{
+	AttackFinished = AIAttackFinished;
+}
+
+void ARPGEnemy::StartAIAttack()
+{
+	AnimInstance->PlayAttackMontage();
+}
+
+void ARPGEnemy::AttackHitCheck()
+{
+	// 충돌검사 매개변수 설정
+	TArray<FHitResult> OutHitResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	const float AttackRange = 40.0f;
+	const float AttackRadius = 50.0f;
+	const float  AttackDamage = 30.0f;
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+	// 충돌검사
+	bool bHitDetected = GetWorld()->SweepMultiByChannel(
+		OutHitResults,
+		Start,
+		End,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params);
+	if (bHitDetected)
+	{
+		// 감지된 모든 Pawn에 대해서 검사를 수행
+		for (auto const& OutHitResult : OutHitResults)
+		{
+			FDamageEvent DamageEvent;
+			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+		}
+	}
+
+	// !충돌판정 테스트!
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = bHitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+#endif
+}

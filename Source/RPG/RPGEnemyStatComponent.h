@@ -23,11 +23,20 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
-	UPROPERTY(VisibleInstanceOnly, Category = Stat)
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float MaxHp;
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float PatrolRadius;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float DetectRadius;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float AttackRange;
 
 public:
 	void ApplyDamege(float InDamage);
@@ -41,4 +50,7 @@ public:
 	// FORCEINLINE
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
+	FORCEINLINE float GetPatrolRadius() { return PatrolRadius; }
+	FORCEINLINE float GetDetectRadius() { return DetectRadius; }
+	FORCEINLINE float GetAttackRadius() { return AttackRange; }
 };

@@ -6,8 +6,14 @@
 // Sets default values for this component's properties
 URPGEnemyStatComponent::URPGEnemyStatComponent()
 {
+	// 체력 설정
 	MaxHp = 200.f;
 	SetHp(MaxHp);
+
+	// 범위 설정
+	PatrolRadius = 800.0f;
+	DetectRadius = 400.0f;
+	AttackRange = 200.0f;
 }
 
 

@@ -45,4 +45,36 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsJumping : 1;
+
+// 공격 관련
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> AttackMontage;
+
+public:
+	UFUNCTION()
+	void PlayAttackMontage();
+
+	UFUNCTION()
+	void AnimNotify_AttackStart();
+
+	UFUNCTION()
+	void AnimNotify_AttackFinish();
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = State)
+	bool bIsAttacking;
+
+public:
+	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
+	FORCEINLINE void SetIsAttacking(bool currentState) { bIsAttacking = currentState; }
+
+// 죽음
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+public:
+	UFUNCTION()
+	void PlayDeadMontage();
 };

@@ -32,7 +32,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	{
 		return;
 	}
-	float DetectRange = CurrentAIPawn->GetAIDetectRange();
+	float DetectRange = CurrentAIPawn->GetAIDetectRadius();
 
 	// 충돌검사
 	TArray<FOverlapResult> OverlapResults;

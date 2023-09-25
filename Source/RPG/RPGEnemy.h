@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "RPGWidgetInterface.h"
 #include "RPGEnemyAIInterface.h"
+#include "RPGAnimationAttackInterface.h"
 #include "RPGEnemy.generated.h"
 
 UCLASS()
-class RPG_API ARPGEnemy : public ACharacter, public IRPGWidgetInterface, public IRPGEnemyAIInterface
+class RPG_API ARPGEnemy : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface, public IRPGEnemyAIInterface
 {
 	GENERATED_BODY()
 
@@ -55,8 +56,22 @@ protected:
 
 // AI
 protected:
+	// 범위 관련
 	virtual float GetAIPatrolRadius() override;
-	virtual float GetAIDetectRange() override;
+	virtual float GetAIDetectRadius() override;
 	virtual float GetAIAttackRange() override;
+
+	// 공격 관련
+	UFUNCTION()
+	void MontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	virtual void SetAIAttackFinishedDelegate(const FAIAttackFinished& AIAttackFinished) override;
+	virtual void StartAIAttack() override;
+
+	FAIAttackFinished AttackFinished;
+
+//공격 충돌 관련
+protected:
+	virtual void AttackHitCheck() override;
 
 };
