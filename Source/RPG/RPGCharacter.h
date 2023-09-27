@@ -7,10 +7,11 @@
 #include "InputActionValue.h"
 #include "RPGAnimationAttackInterface.h"
 #include "RPGWidgetInterface.h"
+#include "RPGAnimationDefenseInterface.h"
 #include "RPGCharacter.generated.h"
 
 UCLASS()
-class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface
+class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface, public IRPGAnimationDefenseInterface
 {
 	GENERATED_BODY()
 
@@ -93,7 +94,13 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+// ¹æ¾î °ü·Ã
+protected:
+	virtual void DefenseHitCheck() override;
+
+
 // Á×À½
+protected:
 	void SetDead();
 
 // ½ºÅÈ
@@ -108,5 +115,6 @@ protected:
 	//Ã¼·Â À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarComp;
+
 
 };

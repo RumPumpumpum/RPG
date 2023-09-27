@@ -35,8 +35,14 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	float AttackDamage;
 
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float DefenseRange;
+
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float DefenseDamage;
+
 public:
-	void ApplyDamege(float InDamage);
+	void ApplyDamage(float InDamage);
 	void SetHp(float NewHp);
 
 public:
@@ -49,4 +55,6 @@ public:
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
 	FORCEINLINE float GetAttackRange() { return AttackRange; }
 	FORCEINLINE float GetAttackDamage() { return AttackDamage; }
+	FORCEINLINE float GetDefenseRange() { return DefenseRange; }
+	FORCEINLINE float GetDefenseDamage() { return DefenseDamage; }
 };

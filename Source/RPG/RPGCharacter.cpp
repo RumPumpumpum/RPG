@@ -315,9 +315,56 @@ float ARPGCharacter::TakeDamage(
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	StatComp->ApplyDamege(DamageAmount);
+	StatComp->ApplyDamage(DamageAmount);
 
 	return 0.0f;
+}
+
+void ARPGCharacter::DefenseHitCheck()
+{
+	UE_LOG(LogTemp, Warning, TEXT("HIT!"));
+	// 충돌검사 매개변수 설정
+	TArray<FHitResult> OutHitResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Defense), false, this);
+
+	// 스텟 설정
+	const float DefenseRange = StatComp->GetDefenseRange();
+	const float DefenseRadius = DefenseRange * 0.5f;
+	const float DefenseDamage = StatComp->GetDefenseDamage();
+	
+	// 공격 범위 설정
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * DefenseRange;
+
+	// 충돌검사
+	bool bHitDetected = GetWorld()->SweepMultiByChannel(
+		OutHitResults,
+		Start,
+		End,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(DefenseRadius),
+		Params);
+	if (bHitDetected)
+	{
+		// 감지된 모든 Pawn에 대해서 검사를 수행
+		for (auto const& OutHitResult : OutHitResults)
+		{
+			FDamageEvent DamageEvent;
+
+			OutHitResult.GetActor()->TakeDamage(DefenseDamage, DamageEvent, GetController(), this);
+		}
+	}
+
+	// !충돌판정 테스트!
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = DefenseRange * 0.5f;
+	FColor DrawColor = bHitDetected ? FColor::Blue : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DefenseRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+#endif
 }
 
 void ARPGCharacter::SetDead()
@@ -369,6 +416,7 @@ void ARPGCharacter::AttackHitCheck()
 		for (auto const& OutHitResult : OutHitResults)
 		{
 			FDamageEvent DamageEvent;
+
 			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
 		}
 	}

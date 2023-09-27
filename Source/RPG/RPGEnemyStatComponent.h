@@ -42,7 +42,7 @@ protected:
 	float AttackDamage;
 
 public:
-	void ApplyDamege(float InDamage);
+	void ApplyDamage(float InDamage);
 	void SetHp(float NewHp);
 
 public:

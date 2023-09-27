@@ -29,7 +29,7 @@ void URPGEnemyStatComponent::BeginPlay()
 	
 }
 
-void URPGEnemyStatComponent::ApplyDamege(float InDamage)
+void URPGEnemyStatComponent::ApplyDamage(float InDamage)
 {
 	SetHp(CurrentHp - InDamage);
 }

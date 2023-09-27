@@ -10,11 +10,17 @@ URPGCharacterStatComponent::URPGCharacterStatComponent()
 	MaxHp = 100.f;
 	SetHp(MaxHp);
 
-	// 범위 설정
+	// 공격 범위 설정
 	AttackRange = 150.0f;
 
-	// 데미지 설정
+	// 공격 데미지 설정
 	AttackDamage = 30.0f;
+
+	// 방어 범위 설정
+	DefenseRange = 100.0f;
+
+	// 방어로 입히는 데미지 설정
+	DefenseDamage = 10.0f;
 }
 
 
@@ -27,7 +33,7 @@ void URPGCharacterStatComponent::BeginPlay()
 
 }
 
-void URPGCharacterStatComponent::ApplyDamege(float InDamage)
+void URPGCharacterStatComponent::ApplyDamage(float InDamage)
 {
 	SetHp(CurrentHp - InDamage);
 }

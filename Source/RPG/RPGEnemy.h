@@ -50,7 +50,7 @@ protected:
 protected:
 	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
 
-//체력 위젯
+	//체력 위젯
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarComp;
 
@@ -70,8 +70,11 @@ protected:
 
 	FAIAttackFinished AttackFinished;
 
-//공격 충돌 관련
+// 공격 충돌 관련
 protected:
 	virtual void AttackHitCheck() override;
 
+// 상태이상 관련
+protected:
+	void EndStun();
 };

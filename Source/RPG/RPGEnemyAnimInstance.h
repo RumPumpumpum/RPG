@@ -68,6 +68,7 @@ private:
 public:
 	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 	FORCEINLINE void SetIsAttacking(bool currentState) { bIsAttacking = currentState; }
+	FORCEINLINE bool GetIsAttacking() { return bIsAttacking; }
 
 // 죽음
 protected:
@@ -77,4 +78,13 @@ protected:
 public:
 	UFUNCTION()
 	void PlayDeadMontage();
+
+// 상태이상
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = State, Meta = (AllowPrivateAcess = "ture"))
+	bool Stunned;
+
+public:
+	FORCEINLINE void SetStunned(bool currentState) { Stunned = currentState; }
+	FORCEINLINE bool GetStunned() { return Stunned; }
 };

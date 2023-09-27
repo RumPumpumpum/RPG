@@ -42,6 +42,9 @@ EBTNodeResult::Type UBTTask_TurnToTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 	FVector DirectionToTarget = TargetLocation - CurrentPawn->GetActorLocation();
 	FRotator RotatorToTarget = DirectionToTarget.Rotation();
 
+	// 위아래 회전 방지
+	RotatorToTarget.Pitch = 0.0f;
+
 	CurrentPawn->SetActorRotation(RotatorToTarget);
 
 	return EBTNodeResult::Succeeded;

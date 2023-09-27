@@ -9,6 +9,8 @@
 #include "RPGWidgetComponent.h"
 #include "RPGHpBarWidget.h"
 #include "RPGAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 
 // Sets default values
@@ -94,7 +96,27 @@ float ARPGEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	StatComp->ApplyDamege(DamageAmount);
+	StatComp->ApplyDamage(DamageAmount);
+
+	// 몬스터가 패링 가능한 상태인 경우
+	if (AnimInstance->GetIsAttacking())
+	{
+		// 진행중인 몽타주 종료 후 스턴
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->SetStunned(true);
+
+		//  스턴 해제를 위한 타이머
+		const float StunTime = 5.0f;
+		FTimerHandle StunTimerHandle;
+		GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ARPGEnemy::EndStun, StunTime, false);
+
+
+		// 스턴 처리를 위해 블랙보드 컴포넌트 얻어옴
+		ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
+		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
+		BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), true);
+
+	}
 
 	return 0.0f;
 }
@@ -171,6 +193,7 @@ void ARPGEnemy::AttackHitCheck()
 	const float AttackRange = StatComp->GetAttackRange(); // 공격을 시작하는 거리
 	const float AttackRadius = AttackRange * 0.5f; // 공격이 닿는 거리
 	const float  AttackDamage = StatComp->GetAttackDamage(); // 데미지
+
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 
@@ -189,6 +212,7 @@ void ARPGEnemy::AttackHitCheck()
 		for (auto const& OutHitResult : OutHitResults)
 		{
 			FDamageEvent DamageEvent;
+
 			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
 		}
 	}
@@ -202,4 +226,14 @@ void ARPGEnemy::AttackHitCheck()
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 #endif
+}
+
+void ARPGEnemy::EndStun()
+{
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->SetStunned(false);
+
+	ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
+	UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
+	BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), false);
 }
