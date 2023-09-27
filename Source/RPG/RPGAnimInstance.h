@@ -74,4 +74,15 @@ protected:
 public:
 	UFUNCTION()
 	void PlayDeadMontage();
+
+// ¹æ¾î
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> DefenseMontage;
+
+public:
+	UFUNCTION()
+	void PlayDefenseMontage();
+	FORCEINLINE UAnimMontage* GetDefenseMontage() { return DefenseMontage; }
+
 };

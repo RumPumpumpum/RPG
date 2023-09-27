@@ -66,6 +66,9 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	// Pawn을 감지하지 못했을 경우
 	OwnerComp.GetBlackboardComponent()->SetValueAsObject(FName(TEXT("Target")), nullptr);
 
+	// 공격 범위안에 있는지
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool(FName(TEXT("CanAttack")), bResult);
+
 	// !충돌판정 테스트!
 	DrawDebugSphere(GetWorld(), Center, DetectRange, 16, FColor::Red, false, 0.2f);
 }

@@ -6,8 +6,15 @@
 // Sets default values for this component's properties
 URPGCharacterStatComponent::URPGCharacterStatComponent()
 {
+	// 체력 설정
 	MaxHp = 100.f;
 	SetHp(MaxHp);
+
+	// 범위 설정
+	AttackRange = 150.0f;
+
+	// 데미지 설정
+	AttackDamage = 30.0f;
 }
 
 

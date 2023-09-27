@@ -136,7 +136,7 @@ float ARPGEnemy::GetAIDetectRadius()
 
 float ARPGEnemy::GetAIAttackRange()
 {
-	return StatComp->GetAttackRadius();
+	return StatComp->GetAttackRange();
 }
 
 void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -168,9 +168,9 @@ void ARPGEnemy::AttackHitCheck()
 	TArray<FHitResult> OutHitResults;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
-	const float AttackRange = 40.0f;
-	const float AttackRadius = 50.0f;
-	const float  AttackDamage = 30.0f;
+	const float AttackRange = StatComp->GetAttackRange(); // 공격을 시작하는 거리
+	const float AttackRadius = AttackRange * 0.5f; // 공격이 닿는 거리
+	const float  AttackDamage = StatComp->GetAttackDamage(); // 데미지
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 

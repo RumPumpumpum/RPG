@@ -54,9 +54,13 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> DefenseAction;
+
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Attack();
+	void Defense();
 
 // 애님 인스턴스
 private:
@@ -74,6 +78,10 @@ private:
 	bool bIsAttacking;
 	UPROPERTY(VisibleAnywhere, Category = State)
 	bool bCanNextAttack;
+
+	// 캐릭터의 방어관련 상태
+	UPROPERTY(VisibleAnywhere, Category = State)
+	bool bIsDefensing;
 
 	// 연속공격을 위한 카운트
 	UPROPERTY(VisibleAnywhere, Category = State)

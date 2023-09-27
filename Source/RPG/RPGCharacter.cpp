@@ -91,6 +91,11 @@ ARPGCharacter::ARPGCharacter()
 	if (IA_ATTACK.Succeeded())
 		AttackAction = IA_ATTACK.Object;	
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_DEFENSE
+	(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/IA_Defense.IA_Defense'"));
+	if (IA_DEFENSE.Succeeded())
+		DefenseAction = IA_DEFENSE.Object;
+
 	// 공격 관련 캐릭터 상태 초기화
 	bIsAttacking = false;
 	bCanNextAttack = false;
@@ -102,8 +107,9 @@ ARPGCharacter::ARPGCharacter()
 	// 위젯 컴포넌트 초기화
 	HpBarComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
 
-// 위젯 컴포넌트 설정
+	// 위젯 컴포넌트 설정
 	HpBarComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+
 	// 위젯 호출 및 초기화
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
@@ -168,6 +174,9 @@ void ARPGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 		// Attack
 		EnhancedInputComp->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Attack);
+	
+		// Defense
+		EnhancedInputComp->BindAction(DefenseAction, ETriggerEvent::Triggered, this, &ARPGCharacter::Defense);
 	}
 }
 
@@ -206,12 +215,19 @@ void ARPGCharacter::Attack()
 		return;
 	}
 
+	// 방어 중일때
+	if (bIsDefensing)
+	{
+		return;
+	}
+
 	// 이미 공격 중일때
 	if (bIsAttacking)
 	{
 		bCanNextAttack = true;
 		return;
 	}
+
 
 	// 몽타주 재생
 	if (AnimInstance)
@@ -220,9 +236,41 @@ void ARPGCharacter::Attack()
 		AnimInstance->JumpToSectionAttackMontage(AttackCnt);
 	}
 
-	// 공격시 캐릭터의 상태 정보
-	bIsAttacking = true;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	AttackCnt++;
+	bIsAttacking = true;
+
+}
+
+void ARPGCharacter::Defense()
+{
+	// 방어 예외 처리
+	// 공격 중일때
+	if (bIsAttacking)
+	{
+		return;
+	}
+
+	// 점프 중일 때
+	if (GetCharacterMovement()->MovementMode == MOVE_Falling)
+	{
+		return;
+	}
+
+	// 이미 방어 중일 때
+	if (bIsDefensing)
+	{
+		return;
+	}
+
+	// 몽타주 재생
+	if (AnimInstance)
+	{
+		AnimInstance->PlayDefenseMontage();
+	}
+
+	// 방어시 캐릭터의 상태 정보
+	bIsDefensing = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 }
 
@@ -248,6 +296,14 @@ void ARPGCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		}
 
 		bCanNextAttack = false;
+	}
+
+	// 방어 몽타주 종료
+	if (Montage == AnimInstance->GetDefenseMontage())
+	{
+		// 방어 종료시 캐릭터의 상태정보
+		bIsDefensing = false;
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 }
 
@@ -289,9 +345,12 @@ void ARPGCharacter::AttackHitCheck()
 	TArray<FHitResult> OutHitResults;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
-	const float AttackRange = 40.0f;
-	const float AttackRadius = 50.0f;
-	const float  AttackDamage = 30.0f;
+	// 스텟 설정
+	const float AttackRange = StatComp->GetAttackRange();
+	const float AttackRadius = AttackRange * 0.5f;
+	const float  AttackDamage = StatComp->GetAttackDamage();
+
+	// 공격 범위 설정
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 

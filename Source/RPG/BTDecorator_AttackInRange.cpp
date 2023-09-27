@@ -41,6 +41,7 @@ bool UBTDecorator_AttackInRange::CalculateRawConditionValue(UBehaviorTreeCompone
 	float TargetRange = CurrentPawn->GetDistanceTo(Target);
 	
 	bResult = (TargetRange <= AttackRange);
+	UE_LOG(LogTemp, Warning, TEXT("%f : %f"), TargetRange, AttackRange);
 
 	return bResult;
 }

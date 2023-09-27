@@ -12,8 +12,11 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 
 	// 범위 설정
 	PatrolRadius = 800.0f;
-	DetectRadius = 400.0f;
+	DetectRadius = 500.0f;
 	AttackRange = 200.0f;
+
+	// 데미지 설정
+	AttackDamage = 30.f;
 }
 
 

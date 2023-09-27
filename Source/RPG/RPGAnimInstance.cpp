@@ -21,6 +21,14 @@ URPGAnimInstance::URPGAnimInstance()
 	{
 		DeadMontage = DeadMontageRef.Object;
 	}
+
+	// 방어 몽타주 로드
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DefenseMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Character/Animations/AM_Defense.AM_Defense'"));
+	if (DefenseMontageRef.Succeeded())
+	{
+		DefenseMontage = DefenseMontageRef.Object;
+	}
+
 }
 
 void URPGAnimInstance::AnimNotify_Land()
@@ -66,6 +74,11 @@ void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)
 {
 	FName NextAttackSection = *FString::Printf(TEXT("Attack%d"), AttackCnt);
 	Montage_JumpToSection(NextAttackSection, AttackMontage);
+}
+
+void URPGAnimInstance::PlayDefenseMontage()
+{
+	Montage_Play(DefenseMontage);
 }
 
 void URPGAnimInstance::PlayDeadMontage()
