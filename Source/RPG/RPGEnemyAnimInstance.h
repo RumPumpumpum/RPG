@@ -79,6 +79,9 @@ public:
 	UFUNCTION()
 	void PlayDeadMontage();
 
+public:
+	FORCEINLINE UAnimMontage* GetDeadMontage() { return DeadMontage; }
+
 // 상태이상
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = State, Meta = (AllowPrivateAcess = "ture"))

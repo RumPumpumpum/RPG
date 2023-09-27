@@ -7,10 +7,11 @@
 #include "RPGWidgetInterface.h"
 #include "RPGEnemyAIInterface.h"
 #include "RPGAnimationAttackInterface.h"
+#include "RPGAnimationDefenseInterface.h"
 #include "RPGEnemy.generated.h"
 
 UCLASS()
-class RPG_API ARPGEnemy : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface, public IRPGEnemyAIInterface
+class RPG_API ARPGEnemy : public ACharacter, public IRPGAnimationAttackInterface, public IRPGAnimationDefenseInterface, public IRPGEnemyAIInterface, public IRPGWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -39,6 +40,7 @@ protected:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 // 죽음
+protected:
 	void SetDead();
 
 // 스탯
@@ -70,9 +72,13 @@ protected:
 
 	FAIAttackFinished AttackFinished;
 
-// 공격 충돌 관련
+// 공격 관련
 protected:
 	virtual void AttackHitCheck() override;
+
+// 방어 관련
+	virtual void DefenseHitCheck() override;
+	virtual void ApplyStun() override;
 
 // 상태이상 관련
 protected:

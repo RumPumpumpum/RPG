@@ -98,26 +98,6 @@ float ARPGEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 
 	StatComp->ApplyDamage(DamageAmount);
 
-	// 몬스터가 패링 가능한 상태인 경우
-	if (AnimInstance->GetIsAttacking())
-	{
-		// 진행중인 몽타주 종료 후 스턴
-		AnimInstance->StopAllMontages(0.f);
-		AnimInstance->SetStunned(true);
-
-		//  스턴 해제를 위한 타이머
-		const float StunTime = 5.0f;
-		FTimerHandle StunTimerHandle;
-		GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ARPGEnemy::EndStun, StunTime, false);
-
-
-		// 스턴 처리를 위해 블랙보드 컴포넌트 얻어옴
-		ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
-		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
-		BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), true);
-
-	}
-
 	return 0.0f;
 }
 
@@ -171,6 +151,11 @@ void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 		// 델리게이트
 		AttackFinished.ExecuteIfBound();
+	}
+
+	if (Montage == AnimInstance->GetDeadMontage())
+	{
+		this->Destroy();
 	}
 }
 
@@ -226,6 +211,73 @@ void ARPGEnemy::AttackHitCheck()
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 #endif
+}
+
+void ARPGEnemy::DefenseHitCheck()
+{
+	// 충돌검사 매개변수 설정
+	TArray<FHitResult> OutHitResults;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Defense), false, this);
+
+	// 스텟 설정
+	const float DefenseRange = StatComp->GetDefenseRange();
+	const float DefenseRadius = DefenseRange * 0.5f;
+
+	// 공격 범위 설정
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * DefenseRange;
+
+	// 충돌검사
+	bool bHitDetected = GetWorld()->SweepMultiByChannel(
+		OutHitResults,
+		Start,
+		End,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel1,
+		FCollisionShape::MakeSphere(DefenseRadius),
+		Params);
+	if (bHitDetected)
+	{
+		for (auto const& OutHitResult : OutHitResults)
+		{
+			IRPGAnimationDefenseInterface* WidgetInterface;
+			WidgetInterface = Cast<IRPGAnimationDefenseInterface>(OutHitResult.GetActor());
+			WidgetInterface->ApplyStun();
+		}
+	}
+
+	// !충돌판정 테스트!
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = DefenseRange * 0.5f;
+	FColor DrawColor = bHitDetected ? FColor::Blue : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DefenseRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+#endif
+
+}
+
+void ARPGEnemy::ApplyStun()
+{
+	if (AnimInstance->GetIsAttacking())
+	{
+		// 진행중인 몽타주 종료 후 스턴
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->SetStunned(true);
+
+		//  스턴 해제를 위한 타이머
+		const float StunTime = 5.0f;
+		FTimerHandle StunTimerHandle;
+		GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ARPGEnemy::EndStun, StunTime, false);
+
+
+		// 스턴 처리를 위해 블랙보드 컴포넌트 얻어옴
+		ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
+		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
+		BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), true);
+
+	}
 }
 
 void ARPGEnemy::EndStun()

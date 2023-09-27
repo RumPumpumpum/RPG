@@ -10,13 +10,16 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 	MaxHp = 200.f;
 	SetHp(MaxHp);
 
-	// 범위 설정
+	// AI 범위 설정
 	PatrolRadius = 800.0f;
-	DetectRadius = 500.0f;
-	AttackRange = 200.0f;
+	DetectRadius = 700.0f;
 
-	// 데미지 설정
+	// 공격 설정
+	AttackRange = 200.0f;
 	AttackDamage = 30.f;
+	
+	// 방어 설정
+	DefenseRange = 100.0f;
 }
 
 

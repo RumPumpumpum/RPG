@@ -41,6 +41,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	float AttackDamage;
 
+	UPROPERTY(VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	float DefenseRange;
+
 public:
 	void ApplyDamage(float InDamage);
 	void SetHp(float NewHp);
@@ -57,5 +60,7 @@ public:
 	FORCEINLINE float GetDetectRadius() { return DetectRadius; }
 	FORCEINLINE float GetAttackRange() { return AttackRange; }
 	FORCEINLINE float GetAttackDamage() { return AttackDamage; }
+	FORCEINLINE float GetDefenseRange() { return DefenseRange; }
+
 
 };

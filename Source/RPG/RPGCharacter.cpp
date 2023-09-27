@@ -12,7 +12,6 @@
 #include "RPGWidgetComponent.h"
 #include "RPGHpBarWidget.h"
 
-
 // Sets default values
 ARPGCharacter::ARPGCharacter()
 {
@@ -322,7 +321,6 @@ float ARPGCharacter::TakeDamage(
 
 void ARPGCharacter::DefenseHitCheck()
 {
-	UE_LOG(LogTemp, Warning, TEXT("HIT!"));
 	// 충돌검사 매개변수 설정
 	TArray<FHitResult> OutHitResults;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Defense), false, this);
@@ -330,7 +328,6 @@ void ARPGCharacter::DefenseHitCheck()
 	// 스텟 설정
 	const float DefenseRange = StatComp->GetDefenseRange();
 	const float DefenseRadius = DefenseRange * 0.5f;
-	const float DefenseDamage = StatComp->GetDefenseDamage();
 	
 	// 공격 범위 설정
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
@@ -347,12 +344,11 @@ void ARPGCharacter::DefenseHitCheck()
 		Params);
 	if (bHitDetected)
 	{
-		// 감지된 모든 Pawn에 대해서 검사를 수행
 		for (auto const& OutHitResult : OutHitResults)
 		{
-			FDamageEvent DamageEvent;
-
-			OutHitResult.GetActor()->TakeDamage(DefenseDamage, DamageEvent, GetController(), this);
+			IRPGAnimationDefenseInterface* WidgetInterface;
+			WidgetInterface = Cast<IRPGAnimationDefenseInterface>(OutHitResult.GetActor());\
+			WidgetInterface->ApplyStun();
 		}
 	}
 
@@ -365,6 +361,11 @@ void ARPGCharacter::DefenseHitCheck()
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DefenseRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 #endif
+}
+
+void ARPGCharacter::ApplyStun()
+{
+	// TODO
 }
 
 void ARPGCharacter::SetDead()
