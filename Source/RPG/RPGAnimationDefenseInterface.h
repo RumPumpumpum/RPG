@@ -23,5 +23,5 @@ class RPG_API IRPGAnimationDefenseInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void DefenseHitCheck() = 0;
-	virtual void ApplyStun() = 0;
+	virtual bool ApplyStun() = 0;
 };

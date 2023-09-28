@@ -329,9 +329,12 @@ void ARPGCharacter::DefenseHitCheck()
 	const float DefenseRange = StatComp->GetDefenseRange();
 	const float DefenseRadius = DefenseRange * 0.5f;
 	
-	// 공격 범위 설정
+	// 방어 범위 설정
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * DefenseRange;
+
+	// 방어 결과
+	bool DefenseResult;
 
 	// 충돌검사
 	bool bHitDetected = GetWorld()->SweepMultiByChannel(
@@ -342,13 +345,42 @@ void ARPGCharacter::DefenseHitCheck()
 		ECollisionChannel::ECC_GameTraceChannel1,
 		FCollisionShape::MakeSphere(DefenseRadius),
 		Params);
+
 	if (bHitDetected)
 	{
 		for (auto const& OutHitResult : OutHitResults)
 		{
 			IRPGAnimationDefenseInterface* WidgetInterface;
 			WidgetInterface = Cast<IRPGAnimationDefenseInterface>(OutHitResult.GetActor());\
-			WidgetInterface->ApplyStun();
+			if(WidgetInterface->ApplyStun())
+			{
+				DefenseResult = true;
+			}
+		}
+
+		// 방어가 성공적으로 진행 되었을 경우
+		if (DefenseResult)
+		{
+			// 방어 성공 시 연출 효과
+			float TimeSlowDilation = 0.3f;
+			float TimeSlowDelay = 1.0f;
+
+			GetWorldSettings()->SetTimeDilation(TimeSlowDilation);
+			SpringArmComp->TargetArmLength = 500.f;
+			// 방패 컴포넌트에 불꽃튀는 이펙트,
+			// 방패에 튕기는 사운드,
+			// 카메라 줌
+
+			// 타이머
+			FTimerHandle TimeSlowTimerHandle;
+			GetWorldTimerManager().SetTimer(
+				TimeSlowTimerHandle,
+				[&]() {
+					GetWorldSettings()->SetTimeDilation(1.0f);
+					SpringArmComp->TargetArmLength = 1000.f;
+				},
+				TimeSlowDilation / TimeSlowDelay,
+				false);
 		}
 	}
 
@@ -363,9 +395,10 @@ void ARPGCharacter::DefenseHitCheck()
 #endif
 }
 
-void ARPGCharacter::ApplyStun()
+bool ARPGCharacter::ApplyStun()
 {
 	// TODO
+	return false;
 }
 
 void ARPGCharacter::SetDead()

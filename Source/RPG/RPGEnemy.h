@@ -78,9 +78,5 @@ protected:
 
 // 방어 관련
 	virtual void DefenseHitCheck() override;
-	virtual void ApplyStun() override;
-
-// 상태이상 관련
-protected:
-	void EndStun();
+	virtual bool ApplyStun() override;
 };

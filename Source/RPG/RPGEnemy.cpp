@@ -258,7 +258,7 @@ void ARPGEnemy::DefenseHitCheck()
 
 }
 
-void ARPGEnemy::ApplyStun()
+bool ARPGEnemy::ApplyStun()
 {
 	if (AnimInstance->GetIsAttacking())
 	{
@@ -269,23 +269,25 @@ void ARPGEnemy::ApplyStun()
 		//  스턴 해제를 위한 타이머
 		const float StunTime = 5.0f;
 		FTimerHandle StunTimerHandle;
-		GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ARPGEnemy::EndStun, StunTime, false);
-
+		GetWorldTimerManager().SetTimer(
+			StunTimerHandle, 
+			[&]() {
+				AnimInstance->StopAllMontages(0.0f);
+				AnimInstance->SetStunned(false);
+				ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
+				UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
+				BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), false);
+			}, 
+			StunTime, 
+			false);
 
 		// 스턴 처리를 위해 블랙보드 컴포넌트 얻어옴
 		ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
 		UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 		BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), true);
 
+		return true;
 	}
-}
 
-void ARPGEnemy::EndStun()
-{
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->SetStunned(false);
-
-	ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
-	UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
-	BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), false);
+	return false;
 }

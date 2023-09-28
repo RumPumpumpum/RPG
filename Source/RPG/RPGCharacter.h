@@ -97,7 +97,7 @@ protected:
 // 방어 관련
 protected:
 	virtual void DefenseHitCheck() override;
-	virtual void ApplyStun() override;
+	virtual bool ApplyStun() override;
 
 // 죽음
 protected:
