@@ -85,4 +85,9 @@ public:
 	void PlayDefenseMontage();
 	FORCEINLINE UAnimMontage* GetDefenseMontage() { return DefenseMontage; }
 
+// »ç¿îµå
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> AttackSoundCue;
+
 };

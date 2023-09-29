@@ -5,6 +5,9 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+
 
 URPGAnimInstance::URPGAnimInstance()
 {
@@ -29,6 +32,12 @@ URPGAnimInstance::URPGAnimInstance()
 		DefenseMontage = DefenseMontageRef.Object;
 	}
 
+	// 사운드 큐 설정
+	static ConstructorHelpers::FObjectFinder<USoundCue> AttackSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Character_Attack.Character_Attack'"));
+	if (AttackSoundCueRef.Succeeded())
+	{
+		AttackSoundCue = AttackSoundCueRef.Object;
+	}
 }
 
 void URPGAnimInstance::AnimNotify_Land()
@@ -68,6 +77,7 @@ void URPGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 void URPGAnimInstance::PlayAttackMontage()
 {
 	Montage_Play(AttackMontage);
+	UGameplayStatics::PlaySound2D(this, AttackSoundCue);
 }
 
 void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)

@@ -30,7 +30,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-// 카메라
+	// 카메라
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArmComp;
@@ -38,7 +38,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCameraComp;
 
-// 입력
+	// 입력
 protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
@@ -51,7 +51,7 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> LookAction;
-	
+
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
 
@@ -63,12 +63,12 @@ protected:
 	void Attack();
 	void Defense();
 
-// 애님 인스턴스
+	// 애님 인스턴스
 private:
 	UPROPERTY()
 	TObjectPtr<class URPGAnimInstance> AnimInstance;
 
-// 공격 관련
+	// 공격 관련
 public:
 	UFUNCTION()
 	void MontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -94,21 +94,21 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-// 방어 관련
+	// 방어 관련
 protected:
 	virtual void DefenseHitCheck() override;
 	virtual bool ApplyStun() override;
 
-// 죽음
+	// 죽음
 protected:
 	void SetDead();
 
-// 스탯
+	// 스탯
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGCharacterStatComponent> StatComp;
 
-// UI 
+	// UI 
 protected:
 	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
 
@@ -116,5 +116,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarComp;
 
+// 파티클
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> DefenseParticle;
 
+// 사운드
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> DefenseSoundCue;
 };

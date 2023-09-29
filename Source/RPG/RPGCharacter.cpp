@@ -11,6 +11,8 @@
 #include "RPGCharacterStatComponent.h"
 #include "RPGWidgetComponent.h"
 #include "RPGHpBarWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ARPGCharacter::ARPGCharacter()
@@ -44,7 +46,7 @@ ARPGCharacter::ARPGCharacter()
 	// 캐릭터 무브먼트
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 500.0f;
+	GetCharacterMovement()->JumpZVelocity = 400.0f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->MaxAcceleration = 1500.0f;
@@ -119,6 +121,14 @@ ARPGCharacter::ARPGCharacter()
 		HpBarComp->SetDrawSize(FVector2D(150.0f, 15.0f));
 		HpBarComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	// 사운드 큐 설정
+	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Character_Defense.Character_Defense'"));
+	if (DefenseSoundCueRef.Succeeded())
+	{
+		DefenseSoundCue = DefenseSoundCueRef.Object;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -334,7 +344,7 @@ void ARPGCharacter::DefenseHitCheck()
 	const FVector End = Start + GetActorForwardVector() * DefenseRange;
 
 	// 방어 결과
-	bool DefenseResult;
+	bool DefenseResult = false;
 
 	// 충돌검사
 	bool bHitDetected = GetWorld()->SweepMultiByChannel(
@@ -361,17 +371,17 @@ void ARPGCharacter::DefenseHitCheck()
 		// 방어가 성공적으로 진행 되었을 경우
 		if (DefenseResult)
 		{
+			// 파티클 생성
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefenseParticle, Start);
+
 			// 방어 성공 시 연출 효과
-			float TimeSlowDilation = 0.3f;
-			float TimeSlowDelay = 1.0f;
+			float TimeSlowDilation = 0.3f; // 얼마만큼 슬로우
+			float TimeSlowDelay = 1.0f; // 몇초동안 슬로우
 
 			GetWorldSettings()->SetTimeDilation(TimeSlowDilation);
 			SpringArmComp->TargetArmLength = 500.f;
-			// 방패 컴포넌트에 불꽃튀는 이펙트,
-			// 방패에 튕기는 사운드,
-			// 카메라 줌
-
-			// 타이머
+			UGameplayStatics::PlaySound2D(this, DefenseSoundCue);
+			
 			FTimerHandle TimeSlowTimerHandle;
 			GetWorldTimerManager().SetTimer(
 				TimeSlowTimerHandle,

@@ -265,6 +265,7 @@ bool ARPGEnemy::ApplyStun()
 		// 진행중인 몽타주 종료 후 스턴
 		AnimInstance->StopAllMontages(0.f);
 		AnimInstance->SetStunned(true);
+		AnimInstance->SetIsAttacking(false);
 
 		//  스턴 해제를 위한 타이머
 		const float StunTime = 5.0f;
@@ -274,6 +275,7 @@ bool ARPGEnemy::ApplyStun()
 			[&]() {
 				AnimInstance->StopAllMontages(0.0f);
 				AnimInstance->SetStunned(false);
+
 				ARPGAIController* AIController = Cast<ARPGAIController>(Controller);
 				UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 				BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), false);

@@ -56,13 +56,11 @@ void URPGEnemyAnimInstance::PlayAttackMontage()
 
 void URPGEnemyAnimInstance::AnimNotify_AttackStart()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnAttacking"));
 	bIsAttacking = true;
 }
 
 void URPGEnemyAnimInstance::AnimNotify_AttackFinish()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AttackFinished"));
 	bIsAttacking = false;
 }
 
