@@ -20,6 +20,9 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 	
 	// 방어 설정
 	DefenseRange = 100.0f;
+
+	// 리스폰 시간 설정
+	RespawnTime = 4.0f;
 }
 
 

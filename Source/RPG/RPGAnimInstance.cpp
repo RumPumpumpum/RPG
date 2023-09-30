@@ -38,11 +38,47 @@ URPGAnimInstance::URPGAnimInstance()
 	{
 		AttackSoundCue = AttackSoundCueRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> SwordSmashSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Sword_Smash.Sword_Smash'"));
+	if (SwordSmashSoundCueRef.Succeeded())
+	{
+		SwordSmashSoundCue = SwordSmashSoundCueRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Character_Defense.Character_Defense'"));
+	if (DefenseSoundCueRef.Succeeded())
+	{
+		DefenseSoundCue = DefenseSoundCueRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> DeadSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Dead.Dead'"));
+	if (DeadSoundCueRef.Succeeded())
+	{
+		DeadSoundCue = DeadSoundCueRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> FootstepSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Footstep.Footstep'"));
+	if (FootstepSoundCueRef.Succeeded())
+	{
+		FootstepSoundCue = FootstepSoundCueRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> LandSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Land.Land'"));
+	if (LandSoundCueRef.Succeeded())
+	{
+		LandSoundCue = LandSoundCueRef.Object;
+	}
+}
+
+void URPGAnimInstance::AnimNotify_Footstep()
+{
+	UGameplayStatics::PlaySound2D(this, FootstepSoundCue);
 }
 
 void URPGAnimInstance::AnimNotify_Land()
 {
 	Owner->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	UGameplayStatics::PlaySound2D(this, LandSoundCue);
 }
 
 void URPGAnimInstance::AnimNotify_LandFinish()
@@ -78,6 +114,7 @@ void URPGAnimInstance::PlayAttackMontage()
 {
 	Montage_Play(AttackMontage);
 	UGameplayStatics::PlaySound2D(this, AttackSoundCue);
+	UGameplayStatics::PlaySound2D(this, SwordSmashSoundCue);
 }
 
 void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)
@@ -89,10 +126,12 @@ void URPGAnimInstance::JumpToSectionAttackMontage(uint8 AttackCnt)
 void URPGAnimInstance::PlayDefenseMontage()
 {
 	Montage_Play(DefenseMontage);
+	UGameplayStatics::PlaySound2D(this, DefenseSoundCue);
 }
 
 void URPGAnimInstance::PlayDeadMontage()
 {
 	StopAllMontages(0.f);
 	Montage_Play(DeadMontage);
+	UGameplayStatics::PlaySound2D(this, DeadSoundCue);
 }

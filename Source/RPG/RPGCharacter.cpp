@@ -25,7 +25,7 @@ ARPGCharacter::ARPGCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("RPGCapsule"));
 
 	// 캐릭터 메쉬
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
@@ -123,12 +123,17 @@ ARPGCharacter::ARPGCharacter()
 	}
 
 	// 사운드 큐 설정
-	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Character_Defense.Character_Defense'"));
-	if (DefenseSoundCueRef.Succeeded())
+	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSuccessSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Defense_Success.Defense_Success'"));
+	if (DefenseSuccessSoundCueRef.Succeeded())
 	{
-		DefenseSoundCue = DefenseSoundCueRef.Object;
+		DefenseSuccessSoundCue = DefenseSuccessSoundCueRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundCue> SwordHitSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Sword_Hit.Sword_Hit'"));
+	if (SwordHitSoundCueRef.Succeeded())
+	{
+		SwordHitSoundCue = SwordHitSoundCueRef.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -326,6 +331,10 @@ float ARPGCharacter::TakeDamage(
 
 	StatComp->ApplyDamage(DamageAmount);
 
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, this->GetActorLocation());
+
+	UGameplayStatics::PlaySound2D(this, SwordHitSoundCue);
+
 	return 0.0f;
 }
 
@@ -380,7 +389,7 @@ void ARPGCharacter::DefenseHitCheck()
 
 			GetWorldSettings()->SetTimeDilation(TimeSlowDilation);
 			SpringArmComp->TargetArmLength = 500.f;
-			UGameplayStatics::PlaySound2D(this, DefenseSoundCue);
+			UGameplayStatics::PlaySound2D(this, DefenseSuccessSoundCue);
 			
 			FTimerHandle TimeSlowTimerHandle;
 			GetWorldTimerManager().SetTimer(
@@ -393,16 +402,6 @@ void ARPGCharacter::DefenseHitCheck()
 				false);
 		}
 	}
-
-	// !충돌판정 테스트!
-#if ENABLE_DRAW_DEBUG
-
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = DefenseRange * 0.5f;
-	FColor DrawColor = bHitDetected ? FColor::Blue : FColor::Red;
-
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DefenseRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
-#endif
 }
 
 bool ARPGCharacter::ApplyStun()
@@ -415,6 +414,13 @@ void ARPGCharacter::SetDead()
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	SetActorEnableCollision(false);
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if(PlayerController)
+	{
+		DisableInput(PlayerController);
+	}
+
 	AnimInstance->PlayDeadMontage();
 }
 
@@ -464,16 +470,6 @@ void ARPGCharacter::AttackHitCheck()
 			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
 		}
 	}
-
-// !충돌판정 테스트!
-#if ENABLE_DRAW_DEBUG
-
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = AttackRange * 0.5f;
-	FColor DrawColor = bHitDetected ? FColor::Green : FColor::Red;
-
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
-#endif
 }
 
 

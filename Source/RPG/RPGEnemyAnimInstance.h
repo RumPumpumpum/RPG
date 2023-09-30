@@ -16,7 +16,7 @@ class RPG_API URPGEnemyAnimInstance : public UAnimInstance
 
 public:
 	URPGEnemyAnimInstance();
-	
+
 // 캐릭터 무브먼트 설정
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -65,6 +65,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = State)
 	bool bIsAttacking;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> AttackSoundCue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> SwordSmashSoundCue;
+
 public:
 	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 	FORCEINLINE void SetIsAttacking(bool currentState) { bIsAttacking = currentState; }
@@ -74,6 +81,10 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> DeadMontage;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> DeadSoundCue;
 
 public:
 	UFUNCTION()

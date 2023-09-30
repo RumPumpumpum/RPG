@@ -10,6 +10,8 @@
 #include "RPGHpBarWidget.h"
 #include "RPGAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 
 
@@ -24,7 +26,7 @@ ARPGEnemy::ARPGEnemy()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("RPGCapsule"));
 	
 	// 캐릭터 메쉬
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
@@ -61,6 +63,13 @@ ARPGEnemy::ARPGEnemy()
 	// AI
 	AIControllerClass = ARPGAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	// 사운드 큐 설정
+	static ConstructorHelpers::FObjectFinder<USoundCue> SwordHitSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Sword_Hit.Sword_Hit'"));
+	if (SwordHitSoundCueRef.Succeeded())
+	{
+		SwordHitSoundCue = SwordHitSoundCueRef.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -76,6 +85,10 @@ void ARPGEnemy::BeginPlay()
 
 	// 몽타주가 끝날 때 함수를 호출하는 델리게이트	
 	AnimInstance->OnMontageEnded.AddDynamic(this, &ARPGEnemy::MontageEnded);
+
+	// 초기 위치 저장
+	InitialLocation = GetActorLocation();
+	InitialRotation = GetActorRotation();
 }
 
 // Called every frame
@@ -98,6 +111,10 @@ float ARPGEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 
 	StatComp->ApplyDamage(DamageAmount);
 
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, this->GetActorLocation());
+	
+	UGameplayStatics::PlaySound2D(this, SwordHitSoundCue);
+
 	return 0.0f;
 }
 
@@ -112,6 +129,9 @@ void ARPGEnemy::SetDead()
 
 	AnimInstance->PlayDeadMontage();
 	SetActorEnableCollision(false);
+
+	FTimerHandle RespawnTimerHandle;
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGEnemy::RespawnTimer, StatComp->GetRespawnTime(), false);
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
@@ -151,11 +171,6 @@ void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 		// 델리게이트
 		AttackFinished.ExecuteIfBound();
-	}
-
-	if (Montage == AnimInstance->GetDeadMontage())
-	{
-		this->Destroy();
 	}
 }
 
@@ -201,16 +216,6 @@ void ARPGEnemy::AttackHitCheck()
 			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
 		}
 	}
-
-	// !충돌판정 테스트!
-#if ENABLE_DRAW_DEBUG
-
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = AttackRange * 0.5f;
-	FColor DrawColor = bHitDetected ? FColor::Green : FColor::Red;
-
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
-#endif
 }
 
 void ARPGEnemy::DefenseHitCheck()
@@ -245,17 +250,6 @@ void ARPGEnemy::DefenseHitCheck()
 			WidgetInterface->ApplyStun();
 		}
 	}
-
-	// !충돌판정 테스트!
-#if ENABLE_DRAW_DEBUG
-
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = DefenseRange * 0.5f;
-	FColor DrawColor = bHitDetected ? FColor::Blue : FColor::Red;
-
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DefenseRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
-#endif
-
 }
 
 bool ARPGEnemy::ApplyStun()
@@ -292,4 +286,25 @@ bool ARPGEnemy::ApplyStun()
 	}
 
 	return false;
+}
+
+void ARPGEnemy::RespawnTimer()
+{
+	GetWorld()->SpawnActor(this->GetClass(), &InitialLocation, &InitialRotation);
+	Destroy();
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RespawnParticle, InitialLocation);
+
+	/*
+	FActorSpawnParameters RespawnParams;
+	RespawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	ARPGEnemy* RespawnEnemy =
+		GetWorld()->SpawnActor<ARPGEnemy>(
+			this->StaticClass(),
+			InitialLocation,
+			InitialRotation,
+			RespawnParams);
+			*/
 }

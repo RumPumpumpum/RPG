@@ -39,6 +39,15 @@ private:
 protected:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> HitParticle;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> SwordHitSoundCue;
+
+
 // 죽음
 protected:
 	void SetDead();
@@ -77,8 +86,20 @@ protected:
 	virtual void AttackHitCheck() override;
 
 // 방어 관련
+protected:
 	virtual void DefenseHitCheck() override;
 	virtual bool ApplyStun() override;
 
+// 리스폰 관련
+protected:
+	void RespawnTimer();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> RespawnParticle;
+
+private:
+	FVector InitialLocation;
+	FRotator InitialRotation;
 
 };

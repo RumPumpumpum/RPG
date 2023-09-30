@@ -30,7 +30,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 카메라
+// 카메라
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArmComp;
@@ -38,7 +38,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> FollowCameraComp;
 
-	// 입력
+// 입력
 protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> DefaultMappingContext;
@@ -63,26 +63,21 @@ protected:
 	void Attack();
 	void Defense();
 
-	// 애님 인스턴스
+// 애님 인스턴스
 private:
 	UPROPERTY()
 	TObjectPtr<class URPGAnimInstance> AnimInstance;
 
-	// 공격 관련
 public:
 	UFUNCTION()
 	void MontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
+// 공격
 private:
-	// 캐릭터의 공격관련 상태
 	UPROPERTY(VisibleAnywhere, Category = State)
 	bool bIsAttacking;
 	UPROPERTY(VisibleAnywhere, Category = State)
 	bool bCanNextAttack;
-
-	// 캐릭터의 방어관련 상태
-	UPROPERTY(VisibleAnywhere, Category = State)
-	bool bIsDefensing;
 
 	// 연속공격을 위한 카운트
 	UPROPERTY(VisibleAnywhere, Category = State)
@@ -94,35 +89,43 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	// 방어 관련
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> HitParticle;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> SwordHitSoundCue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> DefenseSuccessSoundCue;
+
+// 방어 관련
 protected:
 	virtual void DefenseHitCheck() override;
 	virtual bool ApplyStun() override;
 
-	// 죽음
-protected:
-	void SetDead();
+	UPROPERTY(VisibleAnywhere, Category = State)
+	bool bIsDefensing;
 
-	// 스탯
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAcess = "true"))
-	TObjectPtr<class URPGCharacterStatComponent> StatComp;
-
-	// UI 
-protected:
-	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
-
-	//체력 위젯
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
-	TObjectPtr<class URPGWidgetComponent> HpBarComp;
-
-// 파티클
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
 	TObjectPtr<class UParticleSystem> DefenseParticle;
 
-// 사운드
+// 죽음
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
-	TObjectPtr<class USoundCue> DefenseSoundCue;
+	void SetDead();
+
+// 스탯
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class URPGCharacterStatComponent> StatComp;
+
+// UI 
+protected:
+	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
+
+//체력 위젯
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class URPGWidgetComponent> HpBarComp;
 };

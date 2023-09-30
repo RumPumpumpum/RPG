@@ -17,11 +17,25 @@ class RPG_API URPGAnimInstance : public UAnimInstance
 public:
 	URPGAnimInstance();
 
+// 이동
+public:
+	UFUNCTION()
+	void AnimNotify_Footstep();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> FootstepSoundCue;
+
+// 착지
 public:
 	UFUNCTION()
 	void AnimNotify_Land();
 	UFUNCTION()
 	void AnimNotify_LandFinish();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> LandSoundCue;
 
 // 캐릭터 무브먼트 설정
 protected:
@@ -63,6 +77,13 @@ public:
 	UFUNCTION()
 	void JumpToSectionAttackMontage(uint8 AttackCnt);
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> AttackSoundCue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> SwordSmashSoundCue;
+
 public:
 	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 
@@ -75,19 +96,21 @@ public:
 	UFUNCTION()
 	void PlayDeadMontage();
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> DeadSoundCue;
+
 // 방어
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> DefenseMontage;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
+	TObjectPtr<class USoundCue> DefenseSoundCue;
+
 public:
 	UFUNCTION()
 	void PlayDefenseMontage();
 	FORCEINLINE UAnimMontage* GetDefenseMontage() { return DefenseMontage; }
-
-// 사운드
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundCue)
-	TObjectPtr<class USoundCue> AttackSoundCue;
-
 };
