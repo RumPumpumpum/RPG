@@ -26,8 +26,10 @@ void URPGHpBarWidget::NativeConstruct()
 	}
 }
 
-void URPGHpBarWidget::UpdateHpBar(float NewCurrentHp)
+void URPGHpBarWidget::UpdateHpBar(float NewCurrentHp, float CurrentMaxHp)
 {
+	MaxHp = CurrentMaxHp;
+
 	ensure(MaxHp > 0.0f);
 	if (HpBar)
 	{

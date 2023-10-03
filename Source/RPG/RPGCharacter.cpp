@@ -11,6 +11,7 @@
 #include "RPGCharacterStatComponent.h"
 #include "RPGWidgetComponent.h"
 #include "RPGHpBarWidget.h"
+#include "RPGStatWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
@@ -106,20 +107,31 @@ ARPGCharacter::ARPGCharacter()
 	StatComp = CreateDefaultSubobject<URPGCharacterStatComponent>(TEXT("Stat"));
 
 	// 위젯 컴포넌트 초기화
-	HpBarComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
+	HpBarWidgetComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
+	StatWidgetComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("StatWidget"));
+
 
 	// 위젯 컴포넌트 설정
-	HpBarComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
+	HpBarWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 
 	// 위젯 호출 및 초기화
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
-		HpBarComp->SetWidgetClass(HpBarWidgetRef.Class);
-		HpBarComp->SetupAttachment(GetMesh());
-		HpBarComp->SetWidgetSpace(EWidgetSpace::Screen);
-		HpBarComp->SetDrawSize(FVector2D(150.0f, 15.0f));
-		HpBarComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		HpBarWidgetComp->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBarWidgetComp->SetupAttachment(GetMesh());
+		HpBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
+		HpBarWidgetComp->SetDrawSize(FVector2D(150.0f, 15.0f));
+		HpBarWidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> StatWidgetRef(TEXT("/Game/UI/WBP_CharacterStat.WBP_CharacterStat_C"));
+	if (StatWidgetRef.Class)
+	{
+		StatWidgetComp->SetWidgetClass(StatWidgetRef.Class);
+		StatWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
+		StatWidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	}
 
 	// 사운드 큐 설정
@@ -431,8 +443,19 @@ void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
 	if (HpBarWidget)
 	{	
 		HpBarWidget->SetMaxHp(StatComp->GetMaxHp());
-		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp());
+		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp(), StatComp->GetMaxHp());
 		StatComp->OnHpChanged.AddUObject(HpBarWidget, &URPGHpBarWidget::UpdateHpBar);
+	}	
+
+	// Stat 위젯
+	URPGStatWidget* StatWidget = Cast<URPGStatWidget>(InUserWidget);
+	if (StatWidget)
+	{
+		StatWidget->UpdateMaxHp(StatComp->GetMaxHp());
+		StatWidget->UpdateDamage(StatComp->GetAttackDamage());
+
+		StatWidget->OnMaxHpChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetMaxHp);
+		StatWidget->OnDamageChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetDamage);
 	}
 }
 
@@ -445,7 +468,9 @@ void ARPGCharacter::AttackHitCheck()
 	// 스텟 설정
 	const float AttackRange = StatComp->GetAttackRange();
 	const float AttackRadius = AttackRange * 0.5f;
-	const float  AttackDamage = StatComp->GetAttackDamage();
+	// 연속공격시 데미지 상승 (첫공격시 AttackCnt는 1)
+	const float DamageIncrease = 15.0f;
+	const float AttackDamage = StatComp->GetAttackDamage() + ((AttackCnt - 1) * DamageIncrease);
 
 	// 공격 범위 설정
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();

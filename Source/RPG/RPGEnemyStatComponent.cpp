@@ -22,7 +22,7 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 	DefenseRange = 100.0f;
 
 	// 리스폰 시간 설정
-	RespawnTime = 4.0f;
+	RespawnTime = 8.0f;
 }
 
 
@@ -49,7 +49,7 @@ void URPGEnemyStatComponent::SetHp(float NewHp)
 		OnHpZero.Broadcast();
 	}
 
-	OnHpChanged.Broadcast(CurrentHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 }
 
 

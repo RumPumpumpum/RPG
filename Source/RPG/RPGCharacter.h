@@ -127,5 +127,9 @@ protected:
 
 //Ã¼·Â À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
-	TObjectPtr<class URPGWidgetComponent> HpBarComp;
+	TObjectPtr<class URPGWidgetComponent> HpBarWidgetComp;
+
+//½ºÅÈ À§Á¬
+UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
+TObjectPtr<class URPGWidgetComponent> StatWidgetComp;
 };

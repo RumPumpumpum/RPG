@@ -43,7 +43,20 @@ void URPGCharacterStatComponent::SetHp(float NewHp)
 		OnHpZero.Broadcast();
 	}
 
-	OnHpChanged.Broadcast(CurrentHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+}
+
+void URPGCharacterStatComponent::SetMaxHp(float NewMaxHp)
+{
+	float IncreaseHp = NewMaxHp - MaxHp;
+	MaxHp = NewMaxHp;
+
+	SetHp(CurrentHp + IncreaseHp);
+}
+
+void URPGCharacterStatComponent::SetDamage(float NewDamage)
+{
+	AttackDamage = NewDamage;
 }
 
 

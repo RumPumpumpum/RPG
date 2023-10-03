@@ -7,7 +7,7 @@
 #include "RPGCharacterStatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /*CurrentHp*/, float /*MaxHp*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_API URPGCharacterStatComponent : public UActorComponent
@@ -41,6 +41,8 @@ protected:
 public:
 	void ApplyDamage(float InDamage);
 	void SetHp(float NewHp);
+	void SetMaxHp(float NewMaxHp);
+	void SetDamage(float NewDamage);
 
 public:
 	// DELEGATE

@@ -141,7 +141,7 @@ void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
 	if (HpBarWidget)
 	{
 		HpBarWidget->SetMaxHp(StatComp->GetMaxHp());
-		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp());
+		HpBarWidget->UpdateHpBar(StatComp->GetCurrentHp(), StatComp->GetMaxHp());
 		StatComp->OnHpChanged.AddUObject(HpBarWidget, &URPGHpBarWidget::UpdateHpBar);
 	}
 }
@@ -290,21 +290,7 @@ bool ARPGEnemy::ApplyStun()
 
 void ARPGEnemy::RespawnTimer()
 {
-	GetWorld()->SpawnActor(this->GetClass(), &InitialLocation, &InitialRotation);
 	Destroy();
-
+	GetWorld()->SpawnActor(this->GetClass(), &InitialLocation, &InitialRotation);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RespawnParticle, InitialLocation);
-
-	/*
-	FActorSpawnParameters RespawnParams;
-	RespawnParams.SpawnCollisionHandlingOverride =
-		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	ARPGEnemy* RespawnEnemy =
-		GetWorld()->SpawnActor<ARPGEnemy>(
-			this->StaticClass(),
-			InitialLocation,
-			InitialRotation,
-			RespawnParams);
-			*/
 }

@@ -6,9 +6,6 @@
 #include "RPGUserWidget.h"
 #include "RPGHpBarWidget.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class RPG_API URPGHpBarWidget : public URPGUserWidget
 {
@@ -21,7 +18,7 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	void UpdateHpBar(float NewCurrentHp);
+	void UpdateHpBar(float NewCurrentHp, float CurrentMaxHp);
 
 public:
 	FORCEINLINE void SetMaxHp(float NewMaxHp) { MaxHp = NewMaxHp; }
