@@ -110,15 +110,12 @@ ARPGCharacter::ARPGCharacter()
 	HpBarWidgetComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("HpBar"));
 	StatWidgetComp = CreateDefaultSubobject<URPGWidgetComponent>(TEXT("StatWidget"));
 
-
-	// 위젯 컴포넌트 설정
-	HpBarWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
-
 	// 위젯 호출 및 초기화
 	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/WBP_HpBar.WBP_HpBar_C"));
 	if (HpBarWidgetRef.Class)
 	{
 		HpBarWidgetComp->SetWidgetClass(HpBarWidgetRef.Class);
+		HpBarWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 		HpBarWidgetComp->SetupAttachment(GetMesh());
 		HpBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
 		HpBarWidgetComp->SetDrawSize(FVector2D(150.0f, 15.0f));
@@ -128,10 +125,8 @@ ARPGCharacter::ARPGCharacter()
 	static ConstructorHelpers::FClassFinder<UUserWidget> StatWidgetRef(TEXT("/Game/UI/WBP_CharacterStat.WBP_CharacterStat_C"));
 	if (StatWidgetRef.Class)
 	{
+		StatWidgetComp->SetVisibility(false);
 		StatWidgetComp->SetWidgetClass(StatWidgetRef.Class);
-		StatWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
-		StatWidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	}
 
 	// 사운드 큐 설정

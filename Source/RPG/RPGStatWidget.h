@@ -33,10 +33,16 @@ protected:
 	TObjectPtr<class UTextBlock> DamageText;
 
 	UPROPERTY()
+	TObjectPtr<class UTextBlock> StatPointText;
+
+	UPROPERTY()
 	float MaxHp;
 
 	UPROPERTY()
 	float Damage;
+	
+	UPROPERTY()
+	float StatPoint;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Stat")

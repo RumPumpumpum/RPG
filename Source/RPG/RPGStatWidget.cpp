@@ -8,8 +8,9 @@
 
 URPGStatWidget::URPGStatWidget()
 {
-	MaxHp = -1.0f;
-	Damage = -1.0f;
+	MaxHp = 0.0f;
+	Damage = 0.0f;
+	StatPoint = 0.0f;
 }
 
 void URPGStatWidget::NativeConstruct()
@@ -19,8 +20,11 @@ void URPGStatWidget::NativeConstruct()
 	MaxHpText = Cast<UTextBlock>(GetWidgetFromName(TEXT("MaxHpText")));
 	ensure(MaxHpText);
 
-	DamageText = Cast<UTextBlock>(GetWidgetFromName(TEXT("MaxHpText")));
+	DamageText = Cast<UTextBlock>(GetWidgetFromName(TEXT("DamageText")));
 	ensure(DamageText);
+
+	StatPointText = Cast<UTextBlock>(GetWidgetFromName(TEXT("StatPointText")));
+	ensure(StatPointText);
 
 	// 액터가 위젯 인터페이스를 구현하고 있는지 확인하고 구현하고 있다면
 	// 해당 인터페이스를 사용할 수 있도록 인터페이스 포인터로 반환 
@@ -35,8 +39,7 @@ void URPGStatWidget::UpdateMaxHp(float NewMaxHp)
 {
 	MaxHp = NewMaxHp;
 
-	// MaxHp 값을 문자열로 변환하여 MaxHpText에 설정
-	FString MaxHpString = FString(TEXT("%f"), MaxHp);
+	FString MaxHpString = FString::Printf(TEXT("%.1f"), MaxHp);
 	MaxHpText->SetText(FText::FromString(MaxHpString));
 }
 
@@ -44,8 +47,7 @@ void URPGStatWidget::UpdateDamage(float NewDamage)
 {
 	Damage = NewDamage;
 
-	// MaxHp 값을 문자열로 변환하여 MaxHpText에 설정
-	FString DamageString = FString(TEXT("%f"), Damage);
+	FString DamageString = FString::Printf(TEXT("%.1f"), Damage);
 	DamageText->SetText(FText::FromString(DamageString));
 }
 
@@ -55,7 +57,6 @@ void URPGStatWidget::IncreaseMaxHp(float Value)
 	UpdateMaxHp(MaxHp);
 
 	OnMaxHpChanged.Broadcast(MaxHp);
-
 }
 
 void URPGStatWidget::IncreaseDamage(float Value)
@@ -64,5 +65,4 @@ void URPGStatWidget::IncreaseDamage(float Value)
 	UpdateDamage(Damage);
 
 	OnDamageChanged.Broadcast(Damage);
-
 }
