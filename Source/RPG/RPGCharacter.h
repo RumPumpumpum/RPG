@@ -8,10 +8,11 @@
 #include "RPGAnimationAttackInterface.h"
 #include "RPGWidgetInterface.h"
 #include "RPGAnimationDefenseInterface.h"
+#include "RPGBattleRewardInterface.h"
 #include "RPGCharacter.generated.h"
 
 UCLASS()
-class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface, public IRPGAnimationDefenseInterface
+class RPG_API ARPGCharacter : public ACharacter, public IRPGAnimationAttackInterface, public IRPGWidgetInterface, public IRPGAnimationDefenseInterface, public IRPGBattleRewardInterface
 {
 	GENERATED_BODY()
 
@@ -125,6 +126,7 @@ protected:
 protected:
 	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
 
+protected:
 //Ã¼·Â À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarWidgetComp;
@@ -132,4 +134,12 @@ protected:
 //½ºÅÈ À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> StatWidgetComp;
+
+// ÀüÅõ º¸»ó
+protected:
+	virtual void StatPointReward(int RewardPoint) override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> RewardParticle;
 };

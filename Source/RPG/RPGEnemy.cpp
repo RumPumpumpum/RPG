@@ -12,8 +12,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-
-
+#include "RPGBattleRewardInterface.h"
 
 // Sets default values
 ARPGEnemy::ARPGEnemy()
@@ -132,6 +131,10 @@ void ARPGEnemy::SetDead()
 
 	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGEnemy::RespawnTimer, StatComp->GetRespawnTime(), false);
+	
+	AController* CharacterController = GetWorld()->GetFirstPlayerController();
+	IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(CharacterController->GetPawn());
+	BattleRewardInterface->StatPointReward(StatComp->GetRewardStatPoint());
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)

@@ -23,6 +23,9 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 
 	// 리스폰 시간 설정
 	RespawnTime = 8.0f;
+
+	// 보상 스탯 포인트 설정
+	RewardStatPoint = 1;
 }
 
 

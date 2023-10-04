@@ -17,6 +17,8 @@ URPGCharacterStatComponent::URPGCharacterStatComponent()
 	// 방어 설정
 	DefenseRange = 100.0f;
 
+	// 스탯 포인트 설정
+	StatPoint = 5;
 }
 
 
@@ -57,6 +59,11 @@ void URPGCharacterStatComponent::SetMaxHp(float NewMaxHp)
 void URPGCharacterStatComponent::SetDamage(float NewDamage)
 {
 	AttackDamage = NewDamage;
+}
+
+void URPGCharacterStatComponent::SetStatPoint(int ChangeAmount)
+{
+	StatPoint += ChangeAmount;
 }
 
 

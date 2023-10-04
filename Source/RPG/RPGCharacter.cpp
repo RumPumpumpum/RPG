@@ -448,10 +448,18 @@ void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
 	{
 		StatWidget->UpdateMaxHp(StatComp->GetMaxHp());
 		StatWidget->UpdateDamage(StatComp->GetAttackDamage());
+		StatWidget->UpdateStatPoint(StatComp->GetStatPoint());
 
 		StatWidget->OnMaxHpChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetMaxHp);
 		StatWidget->OnDamageChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetDamage);
 	}
+}
+
+void ARPGCharacter::StatPointReward(int RewardPoint)
+{
+	URPGStatWidget* StatWidget = Cast<URPGStatWidget>(StatWidgetComp->GetWidget());
+	StatWidget->IncreaseStatPoint(RewardPoint);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RewardParticle, GetActorLocation());
 }
 
 void ARPGCharacter::AttackHitCheck()

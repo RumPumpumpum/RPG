@@ -10,7 +10,7 @@ URPGStatWidget::URPGStatWidget()
 {
 	MaxHp = 0.0f;
 	Damage = 0.0f;
-	StatPoint = 0.0f;
+	StatPoint = 0;
 }
 
 void URPGStatWidget::NativeConstruct()
@@ -51,18 +51,47 @@ void URPGStatWidget::UpdateDamage(float NewDamage)
 	DamageText->SetText(FText::FromString(DamageString));
 }
 
+void URPGStatWidget::UpdateStatPoint(int NewStatPoint)
+{
+	StatPoint = NewStatPoint;
+
+	FString StatPointString = FString::Printf(TEXT("%d"), StatPoint);
+	StatPointText->SetText(FText::FromString(StatPointString));
+}
+
 void URPGStatWidget::IncreaseMaxHp(float Value)
 {
+	if (StatPoint <= 0)
+	{
+		return;
+	}
+
 	MaxHp += Value;
 	UpdateMaxHp(MaxHp);
 
 	OnMaxHpChanged.Broadcast(MaxHp);
+
+	IncreaseStatPoint(-1);
 }
 
 void URPGStatWidget::IncreaseDamage(float Value)
 {
+	if (StatPoint <= 0)
+	{
+		return;
+	}
+
 	Damage += Value;
 	UpdateDamage(Damage);
 
 	OnDamageChanged.Broadcast(Damage);
+
+	IncreaseStatPoint(-1);
 }
+
+void URPGStatWidget::IncreaseStatPoint(int ChangeAmount)
+{
+	StatPoint += ChangeAmount;
+	UpdateStatPoint(StatPoint);
+}
+

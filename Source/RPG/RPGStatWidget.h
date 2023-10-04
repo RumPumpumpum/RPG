@@ -25,6 +25,8 @@ public:
 
 	void UpdateDamage(float NewDamage);
 
+	void UpdateStatPoint(int NewStatPoint);
+
 protected:
 	UPROPERTY()
 	TObjectPtr<class UTextBlock> MaxHpText;
@@ -42,7 +44,7 @@ protected:
 	float Damage;
 	
 	UPROPERTY()
-	float StatPoint;
+	int StatPoint;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Stat")
@@ -50,6 +52,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Stat")
 	void IncreaseDamage(float Value);
+
+	UFUNCTION(BlueprintCallable, Category = "Stat")
+	void IncreaseStatPoint(int ChangeAmount);
+
 
 public:
 	// DELEGATE
