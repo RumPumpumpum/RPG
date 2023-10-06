@@ -14,6 +14,9 @@
 #include "RPGStatWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Engine/DataTable.h"
+#include "RPGQuestMainWidget.h"
+
 
 // Sets default values
 ARPGCharacter::ARPGCharacter()
@@ -140,6 +143,19 @@ ARPGCharacter::ARPGCharacter()
 	if (SwordHitSoundCueRef.Succeeded())
 	{
 		SwordHitSoundCue = SwordHitSoundCueRef.Object;
+	}
+
+	// 퀘스트 위젯
+	static ConstructorHelpers::FClassFinder<UUserWidget> QuestMainWidgetRef(TEXT("/Game/UI/WBP_QuestMain.WBP_QuestMain_C"));
+	if (QuestMainWidgetRef.Succeeded())
+	{
+		QuestMainWidgetClass = QuestMainWidgetRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> QuestSlotWidgetRef(TEXT("/Game/UI/WBP_QuestSlot.WBP_QuestSlot_C"));
+	if (QuestSlotWidgetRef.Succeeded())
+	{
+		QuestSlotWidgetClass = QuestSlotWidgetRef.Class;
 	}
 }
 
@@ -462,6 +478,22 @@ void ARPGCharacter::StatPointReward(int RewardPoint)
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RewardParticle, GetActorLocation());
 }
 
+void ARPGCharacter::CreateQuestWidget()
+{
+	QuestMainWidget = CreateWidget<URPGQuestMainWidget>(GetWorld(), QuestMainWidgetClass);
+	if (QuestMainWidget)
+	{
+		QuestMainWidget->AddToViewport();
+	}
+
+	QuestMainWidget->AddQuest(QuestSlotWidgetClass);
+}
+
+void ARPGCharacter::DestroyQuestWidget()
+{
+	QuestMainWidget->RemoveFromParent();
+}
+
 void ARPGCharacter::AttackHitCheck()
 {
 	// 충돌검사 매개변수 설정
@@ -471,6 +503,7 @@ void ARPGCharacter::AttackHitCheck()
 	// 스텟 설정
 	const float AttackRange = StatComp->GetAttackRange();
 	const float AttackRadius = AttackRange * 0.5f;
+
 	// 연속공격시 데미지 상승 (첫공격시 AttackCnt는 1)
 	const float DamageIncrease = 15.0f;
 	const float AttackDamage = StatComp->GetAttackDamage() + ((AttackCnt - 1) * DamageIncrease);

@@ -25,7 +25,7 @@ void URPGStatWidget::NativeConstruct()
 
 	StatPointText = Cast<UTextBlock>(GetWidgetFromName(TEXT("StatPointText")));
 	ensure(StatPointText);
-
+	
 	// 액터가 위젯 인터페이스를 구현하고 있는지 확인하고 구현하고 있다면
 	// 해당 인터페이스를 사용할 수 있도록 인터페이스 포인터로 반환 
 	IRPGWidgetInterface* WidgetInterface = Cast<IRPGWidgetInterface>(OwningActor);

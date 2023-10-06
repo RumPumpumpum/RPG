@@ -127,11 +127,11 @@ protected:
 	virtual void SetupWidget(class URPGUserWidget* InUserWidget) override;
 
 protected:
-//Ã¼·Â À§Á¬
+	//Ã¼·Â À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> HpBarWidgetComp;
 
-//½ºÅÈ À§Á¬
+	//½ºÅÈ À§Á¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> StatWidgetComp;
 
@@ -142,4 +142,21 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
 	TObjectPtr<class UParticleSystem> RewardParticle;
+
+// Äù½ºÆ®
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGQuestMainWidget> QuestMainWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TObjectPtr<class URPGQuestMainWidget> QuestMainWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGQuestSlotWidget> QuestSlotWidgetClass;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void CreateQuestWidget();
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void DestroyQuestWidget();
 };
