@@ -128,21 +128,8 @@ ARPGCharacter::ARPGCharacter()
 	static ConstructorHelpers::FClassFinder<UUserWidget> StatWidgetRef(TEXT("/Game/UI/WBP_CharacterStat.WBP_CharacterStat_C"));
 	if (StatWidgetRef.Class)
 	{
-		StatWidgetComp->SetVisibility(false);
 		StatWidgetComp->SetWidgetClass(StatWidgetRef.Class);
-	}
-
-	// 사운드 큐 설정
-	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSuccessSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Defense_Success.Defense_Success'"));
-	if (DefenseSuccessSoundCueRef.Succeeded())
-	{
-		DefenseSuccessSoundCue = DefenseSuccessSoundCueRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<USoundCue> SwordHitSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Sword_Hit.Sword_Hit'"));
-	if (SwordHitSoundCueRef.Succeeded())
-	{
-		SwordHitSoundCue = SwordHitSoundCueRef.Object;
+		StatWidgetComp->SetVisibility(false);
 	}
 
 	// 퀘스트 위젯
@@ -156,6 +143,19 @@ ARPGCharacter::ARPGCharacter()
 	if (QuestSlotWidgetRef.Succeeded())
 	{
 		QuestSlotWidgetClass = QuestSlotWidgetRef.Class;
+	}
+
+	// 사운드 큐 설정
+	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSuccessSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Defense_Success.Defense_Success'"));
+	if (DefenseSuccessSoundCueRef.Succeeded())
+	{
+		DefenseSuccessSoundCue = DefenseSuccessSoundCueRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> SwordHitSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Sword_Hit.Sword_Hit'"));
+	if (SwordHitSoundCueRef.Succeeded())
+	{
+		SwordHitSoundCue = SwordHitSoundCueRef.Object;
 	}
 }
 

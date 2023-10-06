@@ -4,10 +4,18 @@
 #include "RPGQuestSlotWidget.h"
 #include "Components/TextBlock.h"
 
-void URPGQuestSlotWidget::SetQuestName(FString QuestName)
+void URPGQuestSlotWidget::SetQuestName(FString QuestName, int32 ID)
 {
-	UTextBlock* QuestNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("QuestNameText")));
+	QuestNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("QuestNameText")));
 	ensure(QuestNameText);
 
 	QuestNameText->SetText(FText::FromString(QuestName));
+
+	QuestID = ID;
 }
+
+void URPGQuestSlotWidget::ClickedQuestButton()
+{
+	OnQuestButtonClicked.Broadcast(QuestID);
+}
+ 

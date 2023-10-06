@@ -5,8 +5,7 @@
 
 URPGGameInstance::URPGGameInstance()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GameInstance"));
-	// 퀘스트 리스트 설정
+	// 퀘스트 데이터 테이블을 구조체 배열로 변환
 	static ConstructorHelpers::FObjectFinder<UDataTable> QuestListRef(TEXT("/Script/Engine.DataTable'/Game/QuestData/RPGQuestDataTable.RPGQuestDataTable'"));
 	if (QuestListRef.Succeeded())
 	{
@@ -25,3 +24,4 @@ URPGGameInstance::URPGGameInstance()
 		}
 	}
 }
+	

@@ -15,6 +15,10 @@ public:
         , Description(TEXT(""))
         , Accepted(false)
         , Completed(false)
+        , KilledCnt(0)
+        , RequireCnt(0)
+        , Reward(0)
+        , QuestID(0)
     {}
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
@@ -28,4 +32,16 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
     bool Completed;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
+    int32 KilledCnt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
+    int32 RequireCnt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
+    int32 Reward;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quest)
+    int32 QuestID;
 };

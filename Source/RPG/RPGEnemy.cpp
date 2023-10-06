@@ -79,6 +79,9 @@ void ARPGEnemy::BeginPlay()
 	// 애님 인스턴스 초기화
 	AnimInstance = Cast<URPGEnemyAnimInstance>(GetMesh()->GetAnimInstance());
 
+	// 게임 인스턴스 초기화
+	RPGGameInstance = Cast<URPGGameInstance>(GetGameInstance());
+
 	// 스텟의 OnHpZero 델리게이트를 구독
 	StatComp->OnHpZero.AddUObject(this, &ARPGEnemy::SetDead);
 
@@ -88,6 +91,7 @@ void ARPGEnemy::BeginPlay()
 	// 초기 위치 저장
 	InitialLocation = GetActorLocation();
 	InitialRotation = GetActorRotation();
+
 }
 
 // Called every frame
@@ -129,12 +133,25 @@ void ARPGEnemy::SetDead()
 	AnimInstance->PlayDeadMontage();
 	SetActorEnableCollision(false);
 
+	// 리스폰
 	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGEnemy::RespawnTimer, StatComp->GetRespawnTime(), false);
 	
+	// 사망시 스탯 포인트 리워드 지급
 	AController* CharacterController = GetWorld()->GetFirstPlayerController();
 	IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(CharacterController->GetPawn());
 	BattleRewardInterface->StatPointReward(StatComp->GetRewardStatPoint());
+
+	// 퀘스트 카운트 증가
+	TArray<FRPGQuestData>& QuestTable = RPGGameInstance->QuestTable;
+	for (int32 i = 0; i < QuestTable.Num(); ++i)
+	{
+		// 수락한 퀘스트를 확인
+		if (QuestTable[i].Accepted)
+		{
+			QuestTable[i].KilledCnt++;
+		}
+	}
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)
@@ -172,7 +189,7 @@ void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		// 공격 종료시 상태정보
 		AnimInstance->SetIsAttacking(false);
 
-		// 델리게이트
+		// 공격 종료 델리게이트
 		AttackFinished.ExecuteIfBound();
 	}
 }

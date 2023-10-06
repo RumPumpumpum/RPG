@@ -56,8 +56,6 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			if (Pawn && Pawn->GetController()->IsPlayerController())
 			{
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(FName(TEXT("Target")), Pawn);
-				// !충돌판정 테스트!
-				DrawDebugSphere(GetWorld(), Center, DetectRange, 16, FColor::Green, false, 0.2f);
 				return;
 			}
 		}
@@ -68,7 +66,4 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	// 공격 범위안에 있는지
 	OwnerComp.GetBlackboardComponent()->SetValueAsBool(FName(TEXT("CanAttack")), bResult);
-
-	// !충돌판정 테스트!
-	DrawDebugSphere(GetWorld(), Center, DetectRange, 16, FColor::Red, false, 0.2f);
 }

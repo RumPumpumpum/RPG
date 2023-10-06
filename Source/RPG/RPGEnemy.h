@@ -8,6 +8,7 @@
 #include "RPGEnemyAIInterface.h"
 #include "RPGAnimationAttackInterface.h"
 #include "RPGAnimationDefenseInterface.h"
+#include "RPGGameInstance.h"
 #include "RPGEnemy.generated.h"
 
 UCLASS()
@@ -29,6 +30,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+// 게임 인스턴스
+private:
+	URPGGameInstance* RPGGameInstance;
 
 // 애님 인스턴스
 private:
