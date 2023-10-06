@@ -47,14 +47,8 @@ protected:
 	uint8 bIsJumping : 1;
 
 // 공격 관련
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> AttackMontage;
 
 public:
-	UFUNCTION()
-	void PlayAttackMontage();
-
 	UFUNCTION()
 	void AnimNotify_AttackStart();
 
@@ -73,7 +67,6 @@ protected:
 	TObjectPtr<class USoundCue> SwordSmashSoundCue;
 
 public:
-	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
 	FORCEINLINE void SetIsAttacking(bool currentState) { bIsAttacking = currentState; }
 	FORCEINLINE bool GetIsAttacking() { return bIsAttacking; }
 

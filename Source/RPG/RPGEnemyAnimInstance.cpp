@@ -10,13 +10,6 @@
 
 URPGEnemyAnimInstance::URPGEnemyAnimInstance()
 {
-	// °ø°Ý ¸ùÅ¸ÁÖ ·Îµå
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Enemy/Animations/AM_EnemyAttack.AM_EnemyAttack'"));
-	if (AttackMontageRef.Succeeded())
-	{
-		AttackMontage = AttackMontageRef.Object;
-	}
-
 	// »ç¸Á ¸ùÅ¸ÁÖ ·Îµå
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Enemy/Animations/AM_EnemyDead.AM_EnemyDead'"));
 	if (DeadMontageRef.Succeeded())
@@ -69,11 +62,6 @@ void URPGEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsIdle = Speed <= 0.f;
 		bIsInAir = Movement->IsFalling();
 	}
-}
-
-void URPGEnemyAnimInstance::PlayAttackMontage()
-{
-	Montage_Play(AttackMontage, 1.0f);
 }
 
 void URPGEnemyAnimInstance::AnimNotify_AttackStart()

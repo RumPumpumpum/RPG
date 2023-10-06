@@ -90,6 +90,13 @@ protected:
 protected:
 	virtual void AttackHitCheck() override;
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	TObjectPtr<class UAnimMontage> AttackMontage;
+
+public:
+	FORCEINLINE UAnimMontage* GetAttackMontage() { return AttackMontage; }
+
 // 방어 관련
 protected:
 	virtual void DefenseHitCheck() override;
@@ -107,4 +114,7 @@ private:
 	FVector InitialLocation;
 	FRotator InitialRotation;
 
+// 스턴 관련
+protected:
+	FTimerHandle StunTimerHandle;
 };

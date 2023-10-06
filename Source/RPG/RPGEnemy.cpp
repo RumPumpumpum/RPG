@@ -69,6 +69,13 @@ ARPGEnemy::ARPGEnemy()
 	{
 		SwordHitSoundCue = SwordHitSoundCueRef.Object;
 	}
+
+	// 공격 몽타주 로드
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/Enemy/Animations/AM_EnemyAttack.AM_EnemyAttack'"));
+	if (AttackMontageRef.Succeeded())
+	{
+		AttackMontage = AttackMontageRef.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -129,6 +136,13 @@ void ARPGEnemy::SetDead()
 	{
 		AIController->StopAI();
 	}
+	
+	// 스턴 타이머가 걸려있다면 제거
+	if (StunTimerHandle.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(StunTimerHandle);
+		StunTimerHandle.Invalidate();
+	}
 
 	AnimInstance->PlayDeadMontage();
 	SetActorEnableCollision(false);
@@ -137,10 +151,11 @@ void ARPGEnemy::SetDead()
 	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGEnemy::RespawnTimer, StatComp->GetRespawnTime(), false);
 	
-	// 사망시 스탯 포인트 리워드 지급
+	// 사망시 스탯 포인트 리워드 지급, 체력회복
 	AController* CharacterController = GetWorld()->GetFirstPlayerController();
 	IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(CharacterController->GetPawn());
 	BattleRewardInterface->StatPointReward(StatComp->GetRewardStatPoint());
+	BattleRewardInterface->HPRegen(StatComp->GetRewardHP());
 
 	// 퀘스트 카운트 증가
 	TArray<FRPGQuestData>& QuestTable = RPGGameInstance->QuestTable;
@@ -184,7 +199,7 @@ float ARPGEnemy::GetAIAttackRange()
 void ARPGEnemy::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	// 공격 몽타주 종료
-	if (Montage == AnimInstance->GetAttackMontage())
+	if (Montage == AttackMontage)
 	{
 		// 공격 종료시 상태정보
 		AnimInstance->SetIsAttacking(false);
@@ -201,7 +216,7 @@ void ARPGEnemy::SetAIAttackFinishedDelegate(const FAIAttackFinished& AIAttackFin
 
 void ARPGEnemy::StartAIAttack()
 {
-	AnimInstance->PlayAttackMontage();
+	AnimInstance->Montage_Play(AttackMontage, 1.0f);
 }
 
 void ARPGEnemy::AttackHitCheck()
@@ -282,8 +297,6 @@ bool ARPGEnemy::ApplyStun()
 		AnimInstance->SetIsAttacking(false);
 
 		//  스턴 해제를 위한 타이머
-		const float StunTime = 5.0f;
-		FTimerHandle StunTimerHandle;
 		GetWorldTimerManager().SetTimer(
 			StunTimerHandle, 
 			[&]() {
@@ -294,7 +307,7 @@ bool ARPGEnemy::ApplyStun()
 				UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
 				BlackboardComp->SetValueAsBool(FName(TEXT("Stunned")), false);
 			}, 
-			StunTime, 
+			StatComp->GetStunTime(),
 			false);
 
 		// 스턴 처리를 위해 블랙보드 컴포넌트 얻어옴

@@ -23,4 +23,7 @@ class RPG_API IRPGBattleRewardInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void StatPointReward(int RewardPoint) = 0;
+
+	virtual void HPRegen(float RewardHP) = 0;
+
 };

@@ -19,6 +19,9 @@ URPGCharacterStatComponent::URPGCharacterStatComponent()
 
 	// 스탯 포인트 설정
 	StatPoint = 5;
+
+	// 리스폰 시간
+	RespawnTime = 5.0f;
 }
 
 

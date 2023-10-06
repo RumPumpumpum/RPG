@@ -117,6 +117,21 @@ protected:
 protected:
 	void SetDead();
 
+// 리스폰
+public:
+	void Respawn();
+
+protected:
+	FTimerHandle RespawnTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
+	TObjectPtr<class UParticleSystem> RespawnParticle;
+
+
+private:
+	FVector InitialLocation;
+	FRotator InitialRotation;
+
 // 스탯
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAcess = "true"))
@@ -138,6 +153,8 @@ protected:
 // 전투 보상
 protected:
 	virtual void StatPointReward(int RewardPoint) override;
+
+	virtual void HPRegen(float RewardHP) override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)

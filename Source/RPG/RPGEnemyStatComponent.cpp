@@ -22,7 +22,13 @@ URPGEnemyStatComponent::URPGEnemyStatComponent()
 	DefenseRange = 100.0f;
 
 	// 리스폰 시간 설정
-	RespawnTime = 8.0f;
+	RespawnTime = 5.0f;
+
+	// 스턴 지속시간 설정
+	StunTime = 5.0f;
+
+	// 보상 체력 회복량 설정
+	RewardHP = 30.f;
 
 	// 보상 스탯 포인트 설정
 	RewardStatPoint = 1;

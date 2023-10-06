@@ -183,6 +183,10 @@ void ARPGCharacter::BeginPlay()
 
 	// 스텟 컴포넌트의 OnHpZero 델리게이트를 구독
 	StatComp->OnHpZero.AddUObject(this, &ARPGCharacter::SetDead);
+
+	// 초기 위치 저장
+	InitialLocation = GetActorLocation();
+	InitialRotation = GetActorRotation();
 }
 
 // Called every frame
@@ -435,16 +439,46 @@ bool ARPGCharacter::ApplyStun()
 
 void ARPGCharacter::SetDead()
 {
+	// 이전 부활 타이머가 있다면 제거
+	if (GetWorldTimerManager().IsTimerActive(RespawnTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(RespawnTimerHandle);
+	}
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	SetActorEnableCollision(false);
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if(PlayerController)
+	if (PlayerController)
 	{
 		DisableInput(PlayerController);
 	}
 
 	AnimInstance->PlayDeadMontage();
+
+	// 일정 시간 후에 부활하기 위한 타이머 설정
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGCharacter::Respawn, StatComp->GetRespawnTime(), false);
+}
+
+void ARPGCharacter::Respawn()
+{
+	// 부활 위치로 플레이어를 이동
+	SetActorLocation(InitialLocation);
+
+	// 충돌 및 이동모드 초기화
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	SetActorEnableCollision(true);
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		EnableInput(PlayerController);
+	}
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RespawnParticle, InitialLocation);
+	AnimInstance->StopAllMontages(0.f);
+
+	// 최대 체력만큼 회복
+	StatComp->SetHp(StatComp->GetMaxHp());
 }
 
 void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
@@ -476,6 +510,11 @@ void ARPGCharacter::StatPointReward(int RewardPoint)
 	URPGStatWidget* StatWidget = Cast<URPGStatWidget>(StatWidgetComp->GetWidget());
 	StatWidget->IncreaseStatPoint(RewardPoint);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RewardParticle, GetActorLocation());
+}
+
+void ARPGCharacter::HPRegen(float RewardHP)
+{
+	StatComp->SetHp(StatComp->GetCurrentHp() + RewardHP);
 }
 
 void ARPGCharacter::CreateQuestWidget()
