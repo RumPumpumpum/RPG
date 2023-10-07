@@ -246,9 +246,15 @@ void ARPGEnemy::AttackHitCheck()
 		// 감지된 모든 Pawn에 대해서 검사를 수행
 		for (auto const& OutHitResult : OutHitResults)
 		{
-			FDamageEvent DamageEvent;
+			// 몬스터를 공격했다면 무시
+			if (OutHitResult.GetActor()->IsA(ARPGEnemy::StaticClass()))
+			{
+				continue;
+			}
 
+			FDamageEvent DamageEvent;
 			OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+
 		}
 	}
 }
