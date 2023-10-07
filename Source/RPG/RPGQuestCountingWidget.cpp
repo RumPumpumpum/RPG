@@ -42,5 +42,4 @@ void URPGQuestCountingWidget::UpdateQuestCount()
 			continue;
 		}
 	}
-
 }
