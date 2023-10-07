@@ -150,6 +150,36 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = UI, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class URPGWidgetComponent> StatWidgetComp;
 
+	// HUD À§Á¬
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGHUDWidget> RPGHUDWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
+	TObjectPtr<class URPGHUDWidget> RPGHUDWidget;
+
+	// Äù½ºÆ® À§Á¬
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGQuestMainWidget> QuestMainWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TObjectPtr<class URPGQuestMainWidget> QuestMainWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGQuestSlotWidget> QuestSlotWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class URPGQuestCountingWidget> QuestCountingWidgetClass;
+
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void CreateQuestWidget();
+	UFUNCTION(BlueprintCallable, Category = "Widget")
+	void DestroyQuestWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "Quest")
+	void UpdateQuestList();
+
 // ÀüÅõ º¸»ó
 protected:
 	virtual void StatPointReward(int RewardPoint) override;
@@ -160,20 +190,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Particles)
 	TObjectPtr<class UParticleSystem> RewardParticle;
 
-// Äù½ºÆ®
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
-	TSubclassOf<class URPGQuestMainWidget> QuestMainWidgetClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
-	TObjectPtr<class URPGQuestMainWidget> QuestMainWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget)
-	TSubclassOf<class URPGQuestSlotWidget> QuestSlotWidgetClass;
-
-public:
-	UFUNCTION(BlueprintCallable, Category = "Widget")
-	void CreateQuestWidget();
-	UFUNCTION(BlueprintCallable, Category = "Widget")
-	void DestroyQuestWidget();
 };

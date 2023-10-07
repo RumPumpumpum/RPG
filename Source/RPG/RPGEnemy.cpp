@@ -151,12 +151,6 @@ void ARPGEnemy::SetDead()
 	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ARPGEnemy::RespawnTimer, StatComp->GetRespawnTime(), false);
 	
-	// 사망시 스탯 포인트 리워드 지급, 체력회복
-	AController* CharacterController = GetWorld()->GetFirstPlayerController();
-	IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(CharacterController->GetPawn());
-	BattleRewardInterface->StatPointReward(StatComp->GetRewardStatPoint());
-	BattleRewardInterface->HPRegen(StatComp->GetRewardHP());
-
 	// 퀘스트 카운트 증가
 	TArray<FRPGQuestData>& QuestTable = RPGGameInstance->QuestTable;
 	for (int32 i = 0; i < QuestTable.Num(); ++i)
@@ -167,6 +161,12 @@ void ARPGEnemy::SetDead()
 			QuestTable[i].KilledCnt++;
 		}
 	}
+
+	// 사망시 스탯 포인트 리워드 지급, 체력회복
+	AController* CharacterController = GetWorld()->GetFirstPlayerController();
+	IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(CharacterController->GetPawn());
+	BattleRewardInterface->StatPointReward(StatComp->GetRewardStatPoint());
+	BattleRewardInterface->HPRegen(StatComp->GetRewardHP());
 }
 
 void ARPGEnemy::SetupWidget(URPGUserWidget* InUserWidget)

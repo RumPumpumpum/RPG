@@ -121,10 +121,7 @@ void URPGQuestMainWidget::AcceptQuest()
 					AcceptText->SetText(FText::FromString(TEXT("CLEAR")));
 
 					// 스탯 포인트 보상 지급
-					APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-					IRPGBattleRewardInterface* BattleRewardInterface = 
-Cast<IRPGBattleRewardInterface>(PlayerController->GetPawn());
+					IRPGBattleRewardInterface* BattleRewardInterface = Cast<IRPGBattleRewardInterface>(GetOwningPlayerPawn());
 					if(BattleRewardInterface)
 					{
 						BattleRewardInterface->StatPointReward(QuestTable[i].Reward);

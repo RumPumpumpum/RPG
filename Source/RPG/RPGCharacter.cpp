@@ -16,6 +16,7 @@
 #include "Sound/SoundCue.h"
 #include "Engine/DataTable.h"
 #include "RPGQuestMainWidget.h"
+#include "RPGHUDWidget.h"
 
 
 // Sets default values
@@ -145,6 +146,19 @@ ARPGCharacter::ARPGCharacter()
 		QuestSlotWidgetClass = QuestSlotWidgetRef.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<UUserWidget> QuestCountingWidgetRef(TEXT("/Game/UI/WBP_QuestCounting.WBP_QuestCounting_C"));
+	if (QuestCountingWidgetRef.Succeeded())
+	{
+		QuestCountingWidgetClass = QuestCountingWidgetRef.Class;
+	}
+
+	// HUD 위젯
+	static ConstructorHelpers::FClassFinder<URPGHUDWidget> RPGHUDWidgetRef(TEXT("/Game/UI/WBP_HUD.WBP_HUD_C"));
+	if (RPGHUDWidgetRef.Class)
+	{
+		RPGHUDWidgetClass = RPGHUDWidgetRef.Class;
+	}
+
 	// 사운드 큐 설정
 	static ConstructorHelpers::FObjectFinder<USoundCue> DefenseSuccessSoundCueRef(TEXT("/Script/Engine.SoundCue'/Game/Audio/Cues/Defense_Success.Defense_Success'"));
 	if (DefenseSuccessSoundCueRef.Succeeded())
@@ -187,6 +201,13 @@ void ARPGCharacter::BeginPlay()
 	// 초기 위치 저장
 	InitialLocation = GetActorLocation();
 	InitialRotation = GetActorRotation();
+
+	// HUD 위젯 생성
+	RPGHUDWidget = CreateWidget<URPGHUDWidget>(GetWorld(), RPGHUDWidgetClass);
+	if (RPGHUDWidget)
+	{
+		RPGHUDWidget->AddToViewport();
+	}
 }
 
 // Called every frame
@@ -503,6 +524,16 @@ void ARPGCharacter::SetupWidget(URPGUserWidget* InUserWidget)
 		StatWidget->OnMaxHpChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetMaxHp);
 		StatWidget->OnDamageChanged.AddUObject(StatComp, &URPGCharacterStatComponent::SetDamage);
 	}
+
+	// HUD 위젯
+	URPGHUDWidget* HUDWidget = Cast<URPGHUDWidget>(InUserWidget);
+	if (HUDWidget)
+	{
+		HUDWidget->UpdateHpBar(StatComp->GetCurrentHp(), StatComp->GetMaxHp());
+		StatComp->OnHpChanged.AddUObject(HUDWidget, &URPGHUDWidget::UpdateHpBar);
+
+		HUDWidget->SetQuestCountingWidgetClass(QuestCountingWidgetClass);
+	}
 }
 
 void ARPGCharacter::StatPointReward(int RewardPoint)
@@ -510,6 +541,8 @@ void ARPGCharacter::StatPointReward(int RewardPoint)
 	URPGStatWidget* StatWidget = Cast<URPGStatWidget>(StatWidgetComp->GetWidget());
 	StatWidget->IncreaseStatPoint(RewardPoint);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), RewardParticle, GetActorLocation());
+
+	RPGHUDWidget->UpdateQuestCount();
 }
 
 void ARPGCharacter::HPRegen(float RewardHP)
@@ -531,6 +564,11 @@ void ARPGCharacter::CreateQuestWidget()
 void ARPGCharacter::DestroyQuestWidget()
 {
 	QuestMainWidget->RemoveFromParent();
+}
+
+void ARPGCharacter::UpdateQuestList()
+{
+	RPGHUDWidget->UpdateQuestList();
 }
 
 void ARPGCharacter::AttackHitCheck()
