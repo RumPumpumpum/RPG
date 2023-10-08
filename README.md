@@ -5,4 +5,8 @@
 
 **엔진 버전** >> 5.2.1
 
+**포트폴리오 영상** >> https://youtu.be/S4Nl4JpSmxI
+
 **개발 일지** >> https://r-p-p.tistory.com/category/%EA%B0%9C%EB%B0%9C%20%EC%9D%BC%EC%A7%80/RPG
+
+**패키지 파일** >> https://drive.google.com/file/d/1iRzxT_-RLzX9bzBDlnwb741XmVASQSui/view?usp=sharing
