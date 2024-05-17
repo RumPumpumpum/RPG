@@ -1,6 +1,9 @@
 # RPG
 언리얼엔진 3D RPG 프로젝트
 
+![image](https://github.com/RumPumpumpum/RPG/assets/104812604/84538385-5723-4cf3-bb2a-60518258ca3d)
+
+
 <h1>개발 기간</h1>
 2023 - 09 - 07 ~ 2023 - 10 - 07
 
